@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Productivity Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* Custom CSS for finer control and overrides */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Dark background with a subtle gradient */
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            min-height: 100vh; /* Ensure full viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #e2e8f0; /* Light text color */
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6a758a;
+        }
+
+        /* Specific styles for the checkbox button to ensure consistent sizing and appearance */
+        .checkbox-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px; /* Fixed width */
+            height: 24px; /* Fixed height */
+            border-radius: 50%; /* Make it circular */
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .checkbox-button i {
+            font-size: 1.25rem; /* Adjust icon size */
+        }
+
+        /* Style for the input focus state, overriding default browser styles */
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue ring focus */
+        }
+
+        /* Animation for shaking input on error */
+        .animate__shakeX {
+            animation-duration: 0.8s;
+        }
+
+        /* Custom styles for the list items to ensure smooth transitions */
+        .todo-list-item, .note-list-item {
+            transform: translateX(0); /* Ensure initial state for animations */
+        }
+
+        /* Hide controls by default and show on hover for a cleaner look */
+        .todo-controls, .note-controls {
+            opacity: 0;
+            pointer-events: none; /* Allows clicks through when hidden */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .group:hover .todo-controls, .group:hover .note-controls {
+            opacity: 1;
+            pointer-events: auto; /* Enable clicks when visible */
+        }
+
+        /* Ensure input fields have consistent height and styling */
+        .app-input {
+            height: 48px; /* Consistent height for inputs */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <button
+        id="toggle-app-button"
+        class="mb-8 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full
+               transition-all duration-300 shadow-xl hover:shadow-2xl focus:outline-none focus:ring-2
+               focus:ring-indigo-500 focus:ring-opacity-70 transform hover:scale-105 active:scale-95
+               flex items-center justify-center text-lg"
+    >
+        <i class="fas fa-rocket mr-3"></i> Toggle Productivity Hub
+    </button>
+
+    <div id="app-container" class="hidden w-full flex flex-col items-center justify-center">
+        <main class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section class="bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-700/70 animate__animated animate__fadeInDown">
+                <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 text-blue-400 drop-shadow-lg">
+                    <i class="fas fa-check-double mr-3"></i>My To-Do List
+                </h1>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <input
+                        type="text"
+                        id="todo-input"
+                        placeholder="Add a new task..."
+                        class="app-input flex-1 bg-gray-700/50 border border-gray-600 rounded-xl py-2.5 px-4 text-lg text-gray-100 placeholder-gray-400
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 shadow-inner"
+                    />
+                    <button
+                        id="add-todo-button"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-xl
+                               transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2
+                               focus:ring-blue-500 focus:ring-opacity-70 transform hover:scale-105 active:scale-95"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Add Task
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <button data-filter="all" class="filter-button bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 py-2 px-4 rounded-lg transition-all duration-300 shadow-md">All (<span id="all-tasks-count">0</span>)</button>
+                    <button data-filter="active" class="filter-button bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 py-2 px-4 rounded-lg transition-all duration-300 shadow-md">Active (<span id="active-tasks-count">0</span>)</button>
+                    <button data-filter="completed" class="filter-button bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 py-2 px-4 rounded-lg transition-all duration-300 shadow-md">Completed (<span id="completed-tasks-count">0</span>)</button>
+                    <button id="clear-completed-button" class="bg-purple-600/80 hover:bg-purple-700/80 text-white py-2 px-4 rounded-lg transition-all duration-300 shadow-md transform hover:scale-105 active:scale-95">
+                        <i class="fas fa-eraser mr-2"></i>Clear Done
+                    </button>
+                </div>
+
+                <ul id="todo-list" class="space-y-4 min-h-[150px] max-h-[400px] overflow-y-auto pr-2">
+                    </ul>
+
+                <div class="mt-6 text-center">
+                    <button id="clear-all-button" class="bg-red-600/80 hover:bg-red-700/80 text-white font-semibold py-2.5 px-6 rounded-xl
+                               transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2
+                               focus:ring-red-500 focus:ring-opacity-70 transform hover:scale-105 active:scale-95">
+                        <i class="fas fa-trash-alt mr-2"></i>Clear All Tasks
+                    </button>
+                </div>
+            </section>
+
+            <section class="bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-700/70 animate__animated animate__fadeInUp">
+                <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 text-purple-400 drop-shadow-lg">
+                    <i class="fas fa-sticky-note mr-3"></i>My Notes
+                </h1>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                    <textarea
+                        id="note-input"
+                        placeholder="Add a new note..."
+                        rows="1"
+                        class="app-input flex-1 bg-gray-700/50 border border-gray-600 rounded-xl py-2.5 px-4 text-lg text-gray-100 placeholder-gray-400
+                               focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 shadow-inner resize-y min-h-[48px]"
+                    ></textarea>
+                    <button
+                        id="add-note-button"
+                        class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 px-6 rounded-xl
+                               transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2
+                               focus:ring-purple-500 focus:ring-opacity-70 transform hover:scale-105 active:scale-95"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Add Note
+                    </button>
+                </div>
+
+                <div id="notes-list" class="space-y-4 min-h-[150px] max-h-[400px] overflow-y-auto pr-2">
+                    </div>
+
+                <div class="mt-6 text-center">
+                    <button id="clear-notes-button" class="bg-red-600/80 hover:bg-red-700/80 text-white font-semibold py-2.5 px-6 rounded-xl
+                               transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2
+                               focus:ring-red-500 focus:ring-opacity-70 transform hover:scale-105 active:scale-95">
+                        <i class="fas fa-trash-alt mr-2"></i>Clear All Notes
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Toggle App Visibility ---
+            const toggleAppButton = document.getElementById('toggle-app-button');
+            const appContainer = document.getElementById('app-container');
+
+            toggleAppButton.addEventListener('click', () => {
+                appContainer.classList.toggle('hidden');
+                if (!appContainer.classList.contains('hidden')) {
+                    // If showing, trigger fade-in animation
+                    appContainer.classList.remove('animate__fadeOut');
+                    appContainer.classList.add('animate__fadeIn');
+                } else {
+                    // If hiding, trigger fade-out animation
+                    appContainer.classList.remove('animate__fadeIn');
+                    appContainer.classList.add('animate__fadeOut');
+                }
+            });
+
+
+            // --- To-Do List ---
+            const todoInput = document.getElementById('todo-input');
+            const addTodoButton = document.getElementById('add-todo-button');
+            const todoList = document.getElementById('todo-list');
+            const clearCompletedButton = document.getElementById('clear-completed-button');
+            const filterButtons = document.querySelectorAll('.filter-button');
+            const clearAllButton = document.getElementById('clear-all-button');
+
+            // Task count display elements
+            const allTasksCountSpan = document.getElementById('all-tasks-count');
+            const activeTasksCountSpan = document.getElementById('active-tasks-count');
+            const completedTasksCountSpan = document.getElementById('completed-tasks-count');
+
+            let todos = JSON.parse(localStorage.getItem('todos')) || [];
+            let filter = 'all';
+
+            // Function to update task counts
+            function updateTaskCounts() {
+                const activeCount = todos.filter(todo => !todo.completed).length;
+                const completedCount = todos.filter(todo => todo.completed).length;
+                allTasksCountSpan.textContent = todos.length;
+                activeTasksCountSpan.textContent = activeCount;
+                completedTasksCountSpan.textContent = completedCount;
+            }
+
+            // Function to render To-Do items to the DOM
+            function renderTodos() {
+                todoList.innerHTML = ''; // Clear existing list items
+                const filteredTodos = todos.filter(todo => {
+                    if (filter === 'active') return !todo.completed;
+                    if (filter === 'completed') return todo.completed;
+                    return true; // 'all' filter
+                });
+
+                filteredTodos.forEach((todo, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add(
+                        'todo-list-item', 'relative', 'py-2.5', 'px-4', 'rounded-xl', 'bg-gray-700/50', 'border-l-4',
+                        todo.completed ? 'border-green-500/70' : 'border-blue-500/70', /* Dynamic border color */
+                        'transition-all', 'duration-300', 'shadow-md',
+                        'motion-reduce:transition-none', 'flex', 'items-center', 'group',
+                        'overflow-hidden', 'hover:bg-gray-600/50', 'transform', 'hover:scale-[1.01]' /* Hover effects */
+                    );
+                    listItem.style.transform = 'translateX(0)'; // Reset transform for re-rendering
+
+                    // Checkbox button for toggling completion
+                    const checkbox = document.createElement('button');
+                    checkbox.classList.add(
+                        'checkbox-button', 'mr-3', 'transition-all', 'duration-300',
+                        'motion-reduce:transition-none', 'flex-shrink-0'
+                    );
+                    checkbox.innerHTML = `<i class="far ${todo.completed ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-400 dark:text-gray-500'} text-xl"></i>`;
+                    checkbox.addEventListener('click', () => toggleComplete(todos.indexOf(todo))); // Use original index for correct update
+                    listItem.prepend(checkbox);
+
+                    // Task text
+                    const taskText = document.createElement('span');
+                    taskText.textContent = todo.text;
+                    taskText.classList.add('flex-1', 'text-lg', todo.completed ? 'line-through text-gray-400 italic' : 'text-gray-100');
+                    listItem.appendChild(taskText);
+
+                    // Controls container (for complete and delete buttons)
+                    const controlsDiv = document.createElement('div');
+                    controlsDiv.classList.add(
+                        'todo-controls', 'ml-auto', 'flex', 'gap-2',
+                        'opacity-0', 'group-hover:opacity-100',
+                        'transition-all', 'duration-300', 'motion-reduce:transition-none', 'flex-shrink-0'
+                    );
+
+                    // Complete/Undo button
+                    const completeButton = document.createElement('button');
+                    completeButton.innerHTML = `<i class="fas ${todo.completed ? 'fa-undo' : 'fa-check'} text-lg"></i>`;
+                    completeButton.classList.add(
+                        'complete-button',
+                        todo.completed ? 'bg-orange-500/20' : 'bg-green-500/20',
+                        todo.completed ? 'text-orange-400' : 'text-green-400',
+                        todo.completed ? 'hover:bg-orange-500/30' : 'hover:bg-green-500/30',
+                        todo.completed ? 'hover:text-orange-300' : 'hover:text-green-300',
+                        'p-2', 'rounded-full', 'flex-shrink-0', 'transform', 'hover:scale-110', 'active:scale-90', 'transition-all'
+                    );
+                    completeButton.title = todo.completed ? 'Mark as Active' : 'Mark as Complete';
+                    completeButton.addEventListener('click', () => toggleComplete(todos.indexOf(todo)));
+                    controlsDiv.appendChild(completeButton);
+
+                    // Delete button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash delete-button text-lg"></i>';
+                    deleteButton.classList.add(
+                        'delete-button', 'bg-red-500/20', 'text-red-400', 'hover:bg-red-500/30', 'hover:text-red-300',
+                        'p-2', 'rounded-full', 'flex-shrink-0', 'transform', 'hover:scale-110', 'active:scale-90', 'transition-all'
+                    );
+                    deleteButton.addEventListener('click', () => deleteTodo(todos.indexOf(todo))); // Use original index
+                    controlsDiv.appendChild(deleteButton);
+
+                    listItem.appendChild(controlsDiv); // Append the controls div to the list item
+
+                    // Add animation classes for new items
+                    listItem.classList.add('animate__animated', 'animate__fadeInLeft');
+                    todoList.appendChild(listItem);
+
+                    // Delay the animation for a staggered effect.
+                    setTimeout(() => {
+                        listItem.classList.remove('animate__fadeInLeft');
+                    }, 50 * filteredTodos.indexOf(todo)); // Stagger based on filtered index
+                });
+                updateTaskCounts(); // Update counts after rendering
+            }
+
+            // Function to add a new To-Do item
+            function addTodo() {
+                const text = todoInput.value.trim();
+                if (text !== '') {
+                    todos.push({ text, completed: false });
+                    localStorage.setItem('todos', JSON.stringify(todos));
+                    renderTodos();
+                    todoInput.value = '';
+                    // Trigger animation on the newly added item
+                    const addedItem = todoList.lastElementChild;
+                    if (addedItem) {
+                        addedItem.classList.add('animate__animated', 'animate__bounceIn');
+                        setTimeout(() => {
+                            addedItem.classList.remove('animate__bounceIn');
+                        }, 1000);
+                    }
+                } else {
+                    // Provide visual feedback for empty input
+                    todoInput.classList.add('border-red-500', 'focus:ring-red-500', 'animate__animated', 'animate__shakeX');
+                    setTimeout(() => {
+                        todoInput.classList.remove('border-red-500', 'focus:ring-red-500', 'animate__animated', 'animate__shakeX');
+                    }, 1000); // Remove after 1 second
+                }
+            }
+
+            // Function to toggle completion status of a To-Do item
+            function toggleComplete(index) {
+                if (index > -1 && index < todos.length) { // Ensure index is valid
+                    todos[index].completed = !todos[index].completed;
+                    localStorage.setItem('todos', JSON.stringify(todos));
+                    renderTodos();
+                }
+            }
+
+            // Function to delete a To-Do item with animation
+            function deleteTodo(index) {
+                if (index > -1 && index < todos.length) { // Ensure index is valid
+                    // Find the actual DOM element for the todo item based on its current position in the rendered list
+                    const listItem = todoList.children[todos.indexOf(todos[index])];
+                    if (listItem) {
+                        listItem.classList.add('animate__animated', 'animate__fadeOutRight');
+                        setTimeout(() => {
+                            todos.splice(index, 1);
+                            localStorage.setItem('todos', JSON.stringify(todos));
+                            renderTodos();
+                        }, 300); // 300ms is the duration of fadeOutRight
+                    }
+                }
+            }
+
+            // Function to clear all completed To-Do items with animation
+            function clearCompleted() {
+                const completedItems = Array.from(todoList.children).filter(item =>
+                    item.querySelector('span').classList.contains('line-through') // Check for line-through class on the text span
+                );
+
+                if (completedItems.length === 0) return; // No completed items to clear
+
+                // Animate and then clear
+                let itemsRemoved = 0;
+                completedItems.forEach(item => {
+                    item.classList.add('animate__animated', 'animate__fadeOutDown');
+                    setTimeout(() => {
+                        itemsRemoved++;
+                        if (itemsRemoved === completedItems.length) {
+                            todos = todos.filter(todo => !todo.completed);
+                            localStorage.setItem('todos', JSON.stringify(todos));
+                            renderTodos();
+                        }
+                    }, 300);
+                });
+            }
+
+            // Function to clear all To-Do items with animation
+            function clearAllTodos() {
+                const allItems = Array.from(todoList.children);
+                if (allItems.length === 0) return; // No items to clear
+
+                let itemsRemoved = 0;
+                allItems.forEach(item => {
+                    item.classList.add('animate__animated', 'animate__fadeOutDown');
+                    setTimeout(() => {
+                        itemsRemoved++;
+                        if (itemsRemoved === allItems.length) {
+                            todos = [];
+                            localStorage.setItem('todos', JSON.stringify(todos));
+                            renderTodos();
+                        }
+                    }, 300);
+                });
+            }
+
+            // Function to set the filter for To-Do items
+            function setFilter(type) {
+                filter = type;
+                document.querySelectorAll('.filter-button').forEach(btn => {
+                    btn.classList.remove('font-bold', 'text-blue-600', 'bg-gray-600/50', 'shadow-md');
+                    btn.classList.add('bg-gray-700/50', 'text-gray-300', 'hover:bg-gray-600/50');
+                });
+                const activeFilterButton = document.querySelector(`.filter-button[data-filter="${type}"]`);
+                if (activeFilterButton) {
+                    activeFilterButton.classList.add('font-bold', 'text-blue-600', 'bg-gray-600/50', 'shadow-md');
+                    activeFilterButton.classList.remove('hover:bg-gray-600/50');
+                }
+                renderTodos();
+            }
+
+            // Initial filter button state
+            setFilter('all'); // Set initial filter to 'all' and apply active styling
+
+            // Event Listeners for To-Do List
+            addTodoButton.addEventListener('click', addTodo);
+            todoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+            clearCompletedButton.addEventListener('click', clearCompleted);
+            filterButtons.forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
+            clearAllButton.addEventListener('click', clearAllTodos);
+
+            // --- Notes ---
+            const noteInput = document.getElementById('note-input');
+            const addNoteButton = document.getElementById('add-note-button');
+            const notesList = document.getElementById('notes-list');
+            const clearNotesButton = document.getElementById('clear-notes-button');
+
+            let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+            // Function to render notes to the DOM
+            function renderNotes() {
+                notesList.innerHTML = ''; // Clear existing list items
+                notes.forEach((note, index) => {
+                    const noteItem = document.createElement('div');
+                    noteItem.classList.add(
+                        'note-list-item', 'relative', 'py-2.5', 'px-4', 'rounded-xl', 'bg-gray-700/50', 'border-l-4', 'border-purple-500/70',
+                        'transition-all', 'duration-300', 'shadow-md', 'group', 'flex', 'items-center', 'justify-between',
+                        'motion-reduce:transition-none', 'overflow-hidden', 'hover:bg-gray-600/50', 'transform', 'hover:scale-[1.01]' /* Hover effects */
+                    );
+
+                    const noteText = document.createElement('span');
+                    noteText.textContent = note;
+                    noteText.classList.add('flex-1', 'text-lg', 'text-gray-100', 'pr-16'); // Added pr-16 for spacing with controls
+                    noteItem.appendChild(noteText);
+
+                    // Add animation classes for new items
+                    noteItem.classList.add('animate__animated', 'animate__fadeInLeft');
+                    notesList.appendChild(noteItem);
+
+                    // Delay the animation for a staggered effect
+                    setTimeout(() => {
+                        noteItem.classList.remove('animate__fadeInLeft');
+                    }, 50 * index);
+
+                    const controlsDiv = document.createElement('div');
+                    controlsDiv.classList.add(
+                        'note-controls', 'absolute', 'right-4', 'top-1/2', '-translate-y-1/2',
+                        'opacity-0', 'group-hover:opacity-100', 'flex', 'gap-2',
+                        'transition-all', 'duration-300', 'motion-reduce:transition-none'
+                    );
+
+                    const editButton = document.createElement('button');
+                    editButton.innerHTML = '<i class="fas fa-edit text-lg"></i>';
+                    editButton.classList.add(
+                        'edit-button', 'bg-blue-500/20', 'text-blue-400', 'hover:bg-blue-500/30', 'hover:text-blue-300',
+                        'p-2', 'rounded-full', 'flex-shrink-0', 'transform', 'hover:scale-110', 'active:scale-90', 'transition-all'
+                    );
+                    editButton.addEventListener('click', () => editNote(index, noteItem, noteText));
+                    controlsDiv.appendChild(editButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash text-lg"></i>';
+                    deleteButton.classList.add(
+                        'delete-button', 'bg-red-500/20', 'text-red-400', 'hover:bg-red-500/30', 'hover:text-red-300',
+                        'p-2', 'rounded-full', 'flex-shrink-0', 'transform', 'hover:scale-110', 'active:scale-90', 'transition-all'
+                    );
+                    deleteButton.addEventListener('click', () => deleteNote(index));
+                    controlsDiv.appendChild(deleteButton);
+
+                    noteItem.appendChild(controlsDiv);
+                });
+            }
+
+            // Function to add a new note
+            function addNote() {
+                const text = noteInput.value.trim();
+                if (text !== '') {
+                    notes.push(text);
+                    localStorage.setItem('notes', JSON.stringify(notes));
+                    renderNotes();
+                    noteInput.value = '';
+                    // Add animation
+                    const addedNote = notesList.lastElementChild;
+                    if (addedNote) {
+                        addedNote.classList.add('animate__animated', 'animate__bounceIn');
+                        setTimeout(() => {
+                            addedNote.classList.remove('animate__bounceIn');
+                        }, 1000);
+                    }
+                } else {
+                    // Provide feedback for empty note
+                    noteInput.classList.add('border-red-500', 'focus:ring-red-500', 'animate__animated', 'animate__shakeX');
+                    setTimeout(() => {
+                        noteInput.classList.remove('border-red-500', 'focus:ring-red-500', 'animate__animated', 'animate__shakeX');
+                    }, 1000);
+                }
+            }
+
+            // Function to edit an existing note
+            function editNote(index, noteItemElement, noteTextElement) {
+                const originalText = notes[index];
+                noteItemElement.innerHTML = ''; // Clear existing content
+
+                const textarea = document.createElement('textarea');
+                textarea.value = originalText;
+                textarea.classList.add(
+                    'w-full', 'border', 'border-gray-600', 'rounded-xl', 'py-2', 'px-4',
+                    'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'bg-gray-700/50', 'text-gray-200', 'my-2',
+                    'transition-all', 'duration-300', 'motion-reduce:transition-none', 'resize-y'
+                );
+                textarea.rows = Math.max(3, Math.ceil(originalText.length / 40)); // Adjust rows based on content length
+                noteItemElement.appendChild(textarea);
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('flex', 'justify-end', 'gap-3', 'mt-2');
+                noteItemElement.appendChild(buttonContainer);
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.classList.add(
+                    'bg-blue-500/90', 'hover:bg-blue-400', 'text-white', 'font-semibold', 'py-2.5', 'px-5', 'rounded-lg',
+                    'transition-all', 'duration-300', 'shadow-md', 'focus:outline-none', 'focus:ring-2',
+                    'focus:ring-blue-500', 'focus:ring-opacity-50', 'text-sm',
+                    'motion-reduce:transition-none', 'motion-reduce:hover:scale-100'
+                );
+                saveButton.addEventListener('click', () => {
+                    const newText = textarea.value.trim();
+                    if (newText !== originalText) {
+                        notes[index] = newText;
+                        localStorage.setItem('notes', JSON.stringify(notes));
+                    }
+                    renderNotes(); // Re-render all notes to show updated one
+                });
+                buttonContainer.appendChild(saveButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.classList.add(
+                    'bg-gray-300/90', 'hover:bg-gray-400', 'text-gray-800', 'font-semibold', 'py-2.5', 'px-5', 'rounded-lg',
+                    'transition-all', 'duration-300', 'shadow-md', 'focus:outline-none', 'focus:ring-2',
+                    'focus:ring-gray-500', 'focus:ring-opacity-50', 'text-sm',
+                    'motion-reduce:transition-none', 'motion-reduce:hover:scale-100'
+                );
+                cancelButton.addEventListener('click', () => renderNotes()); // Re-render to discard changes
+                buttonContainer.appendChild(cancelButton);
+
+                textarea.focus();
+            }
+
+            // Function to delete a note with animation
+            function deleteNote(index) {
+                const noteItem = notesList.children[index];
+                if (noteItem) {
+                    noteItem.classList.add('animate__animated', 'animate__fadeOutRight');
+                    setTimeout(() => {
+                        notes.splice(index, 1);
+                        localStorage.setItem('notes', JSON.stringify(notes));
+                        renderNotes();
+                    }, 300);
+                }
+            }
+
+            // Event Listener for clearing all notes
+            clearNotesButton.addEventListener('click', () => {
+                const allNotes = Array.from(notesList.children);
+                if (allNotes.length === 0) return; // No notes to clear
+
+                let notesRemoved = 0;
+                allNotes.forEach(noteItem => {
+                    noteItem.classList.add('animate__animated', 'animate__fadeOutDown');
+                    setTimeout(() => {
+                        notesRemoved++;
+                        if (notesRemoved === allNotes.length) {
+                            notes = [];
+                            localStorage.setItem('notes', JSON.stringify(notes));
+                            renderNotes();
+                        }
+                    }, 300);
+                });
+            });
+
+            // Event Listeners for Notes
+            addNoteButton.addEventListener('click', addNote);
+            noteInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Allow Shift+Enter for new lines in textarea
+                    e.preventDefault(); // Prevent default new line
+                    addNote();
+                }
+            });
+
+            // Initial render calls
+            renderTodos();
+            renderNotes();
+        });
+    </script>
+</body>
+</html>
