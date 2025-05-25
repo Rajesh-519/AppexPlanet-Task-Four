@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Updated Custom CSS for Refined Effects */
+        .parallax {
+            background-image: url('Anime.jpeg');
+            /* Replace 'your-image-url.jpg' with the actual URL of your image */
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Refined Theme Button Styles */
+        #theme-button button {
+            background-color: #6b7280;
+            /* Neutral tone */
+            color: #f9fafb;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15);
+        }
+
+        #theme-button button:hover {
+            background-color: #4b5563;
+            /* Slightly darker hover */
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 5px 11px rgba(0, 0, 0, 0.25);
+        }
+
+        #theme-button button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        #theme-button button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: currentColor;
+        }
+
+        /* Dark Theme Styles (Improved Contrast) */
+        .dark {
+            background-color: #0f172a;
+            /* Deeper dark background */
+            color: #f8fafc;
+        }
+
+        .dark h2 {
+            color: #d1d5db;
+            /* Lighter heading color */
+        }
+
+        .dark p {
+            color: #e5e7eb;
+            /* More readable paragraph color */
+        }
+
+        .dark .bg-gray-50 {
+            background-color: #1e293b;
+            /* Darker container background */
+        }
+
+        .dark .bg-gray-100 {
+            background-color: #1e293b;
+        }
+
+        /* Image motion effects */
+        .image-motion {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .image-motion:hover {
+            transform: translateY(-12px) scale(1.06);
+            /* Stronger effect */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* To-Do List Styles */
+        #todo-list-container {
+            margin-top: 3rem;
+        }
+
+        #todo-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #todo-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #edf2f7;
+        }
+
+        .todo-item:hover {
+            background-color: #f7fafc;
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 0 4px 9px rgba(0, 0, 0, 0.15);
+        }
+
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: #a0aec0;
+            opacity: 0.7;
+        }
+
+        .todo-actions button {
+            margin-left: 0.75rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0.375rem;
+            display: flex;
+            transition: transform 0.2s ease;
+        }
+
+        .todo-actions button:hover {
+            transform: scale(1.3);
+        }
+
+        .todo-input-group {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        #todo-input {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.5rem 0 0 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-right: none;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #todo-input:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15);
+        }
+
+
+        #add-todo-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 0 0.5rem 0.5rem 0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #add-todo-button:hover {
+            background-color: #4b5563;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #add-todo-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Note Taking Styles */
+        #notes-container {
+            margin-top: 3rem;
+        }
+
+        #notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #notes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            /* Increased minmax */
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .note-card {
+            background-color: #fff;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #edf2f7;
+        }
+
+        .note-card:hover {
+            background-color: #f7fafc;
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .note-content {
+            flex: 1;
+            margin-bottom: 0.75rem;
+            overflow-wrap: break-word;
+            line-height: 1.6;
+        }
+
+        .note-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .note-actions button {
+            margin-left: 0.75rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0.375rem;
+            display: flex;
+            transition: transform 0.2s ease;
+        }
+
+        .note-actions button:hover {
+            transform: scale(1.3);
+        }
+
+
+        #add-note-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+        }
+
+        #add-note-button:hover {
+            background-color: #4b5563;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 5px 11px rgba(0, 0, 0, 0.25);
+        }
+
+        #add-note-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        #note-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            resize: none;
+            min-height: 5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        #note-input:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15);
+        }
+
+        /* Product Listing Styles */
+        #product-list-container {
+            margin-top: 3rem;
+        }
+
+        #product-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            /* Increased minmax */
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-card {
+            background-color: #fff;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid #edf2f7;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.04);
+            box-shadow: 0 7px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-image-container {
+            width: 100%;
+            height: 250px;
+            /* Increased height */
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            background-color: #f7fafc;
+        }
+
+        .product-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1a202c;
+            line-height: 1.3;
+        }
+
+        .product-description {
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .product-price {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #f56565;
+            margin-bottom: 1.25rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .filter-options label {
+            margin-right: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .filter-options select {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            appearance: none;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .filter-options select:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15);
+        }
+
+        #add-product-button {
+            padding: 0.75rem 2rem;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-top: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+        }
+
+        #add-product-button:hover {
+            background-color: #4b5563;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 5px 11px rgba(0, 0, 0, 0.25);
+        }
+
+        #add-product-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        #product-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.25), 0 10px 12px -8px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            width: 95%;
+            max-width: 700px;
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+            max-height: 95vh;
+        }
+
+        #product-form h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        #product-form label {
+            display: block;
+            margin-bottom: 0.375rem;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        #product-form input,
+        #product-form textarea,
+        #product-form select {
+            width: calc(100% - 3rem);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        #product-form input:focus,
+        #product-form textarea:focus,
+        #product-form select:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15);
+        }
+
+        #product-form textarea {
+            resize: vertical;
+            min-height: 6rem;
+        }
+
+        #product-form .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        #product-form .form-actions button {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #product-form .form-actions button[type="submit"] {
+            background-color: #6b7280;
+            color: #fff;
+        }
+
+        #product-form .form-actions button[type="submit"]:hover {
+            background-color: #4b5563;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #product-form .form-actions button[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #product-form .form-actions button[type="button"] {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        #product-form .form-actions button[type="button"]:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #product-form .form-actions button[type="button"]:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            /* Slightly darker overlay */
+            z-index: 9;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            #product-list-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-options label {
+                margin-bottom: 0.25rem;
+            }
+
+            #product-form {
+                width: 98%;
+                max-width: 95%;
+                padding: 2rem;
+            }
+
+            #notes-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Consistent input styling */
+        input,
+        textarea,
+        select {
+            width: calc(100% - 2rem);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 5rem;
+        }
+
+        select {
+            appearance: none;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+        }
+
+        #todo-input {
+            border-radius: 0.5rem 0 0 0.5rem;
+            border-right: none;
+        }
+
+        #add-todo-button {
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter">
+    <header class="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-5 shadow-lg sticky top-0 z-10">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight">Personal Portfolio</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#home"
+                            class="hover:text-gray-300 transition duration-300 font-semibold text-lg">Home</a></li>
+                    <li><a href="#about"
+                            class="hover:text-gray-300 transition duration-300 font-semibold text-lg">About</a></li>
+                    <li><a href="#projects"
+                            class="hover:text-gray-300 transition duration-300 font-semibold text-lg">Projects</a></li>
+                    <li><a href="#contact"
+                            class="hover:text-gray-300 transition duration-300 font-semibold text-lg">Contact</a></li>
+
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <section id="home"
+        class="parallax py-24 md:py-32 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white/80"
+        style="background-image: url('PSPK.jpg'); background-size: cover; background-repeat: no-repeat;">
+        <div class="container mx-auto text-center px-4 sm:px-6 lg:px-8 fade-in">
+            <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600 mb-6 md:mb-8 drop-shadow-lg header-animation"
+                style="font-weight: 900;">
+                Welcome!
+            </h2>
+            <p
+                class="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 md:mb-12 paragraph-animation">
+                This is my modern project, showcasing my skills and creativity. Enjoy the vibrant design and interactive
+                elements.
+            </p>
+            <a href="#projects"
+                class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 text-lg sm:text-xl button-animation">
+                Explore My Work
+                <svg class="ml-3 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
+            </a>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(1.06);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateX(0px);
+                }
+            }
+
+            .fade-in {
+                animation: fadeIn 1.2s ease-out;
+            }
+
+            .header-animation {
+                animation: fadeIn 1.2s ease-out, pulse 2s infinite;
+            }
+
+            .paragraph-animation {
+                animation: fadeIn 1.2s ease-out, slideIn 1s ease-out;
+            }
+
+            .button-animation {
+                transition: all 0.3s ease-in-out, transform 0.2s ease;
+            }
+
+            .button-animation:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+    </section>
+
+
+    <main>
+        <section id="home" class="container mx-auto px-4 py-10 flex flex-col md:flex-row items-center gap-8"
+            style="background-image: url('Anime.jpeg'); background-size: cover; background-repeat: no-repeat;">
+            <div class="md:w-1/2 text-center md:text-left">
+                <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 dark:from-pink-400 dark:to-violet-400 mb-4 drop-shadow-lg"
+                    style="animation: text-gradient 3s ease-in-out infinite;">
+                    <span style="font-family: 'Arial Black', sans-serif;">Welcome!</span>
+                </h2>
+                <style>
+                    @keyframes text-gradient {
+                        0% {
+                            background-position: 0% 50%;
+                        }
+
+                        50% {
+                            background-position: 100% 50%;
+                        }
+
+                        100% {
+                            background-position: 0% 50%;
+                        }
+                    }
+                </style>
+                <p class="text-lg text-gray-300 dark:text-gray-200 mb-6 leading-relaxed">
+                    This is my vibrant project, showcasing my skills and creativity. Enjoy the modern design and
+                    interactive elements.
+                </p>
+                <a href="#projects" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105
+                        box-shadow-lg hover:shadow-xl
+                        group">
+                    <span class="mr-2">View Projects</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                        class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1">
+                        <path fill-rule="evenodd"
+                            d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div
+                    class="relative rounded-lg shadow-2xl overflow-hidden transition-all duration-500 transform hover:scale-105 group">
+                    <img src="Coding.png" alt="Home Section Image"
+                        class="rounded-lg w-full max-w-md mx-auto object-cover" style="aspect-ratio: 4 / 3;">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300">
+                    </div>
+                    <div
+                        class="absolute bottom-4 left-4 text-white text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p>My Personal Portfolio</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about"
+            class="bg-gradient-to-br from-blue-50/10 to-purple-50/10 dark:from-gray-900/90 dark:to-black/90 py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-12 lg:gap-20">
+                    <div
+                        class="relative rounded-lg shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 group">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-lg blur-md opacity-50 dark:opacity-80">
+                        </div>
+                        <img src="MyImage.jpg" alt="About Me"
+                            class="relative rounded-lg w-full max-w-md mx-auto border border-white/10 dark:border-gray-800 transition-transform duration-500 group-hover:scale-103 object-cover"
+                            style="aspect-ratio: 1796 / 2198;" />
+                        <div class="absolute inset-0 rounded-lg overflow-hidden">
+                            <div
+                                class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center md:text-left space-y-6">
+                        <h2 class="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 dark:from-purple-300 dark:to-blue-300 drop-shadow-lg
+                            transition-all duration-300 transform hover:scale-105
+                            bg-size-200% bg-pos-0 hover:bg-pos-100"
+                            style="animation: text-gradient 5s ease-in-out infinite; font-family: 'Arial Black', sans-serif;">
+                            <span class="block">About Me</span>
+                        </h2>
+                        <style>
+                            @keyframes text-gradient {
+                                0% {
+                                    background-position: 0% 50%;
+                                }
+
+                                50% {
+                                    background-position: 100% 50%;
+                                }
+
+                                100% {
+                                    background-position: 0% 50%;
+                                }
+                            }
+
+                            .text-gray-300 {
+                                color: #e0f2fe;
+                                /* Light cyan, for a modern feel */
+                            }
+
+                            .font-light {
+                                font-weight: 300;
+                                /* Use a lighter font weight */
+                            }
+
+                            .tracking-wide {
+                                letter-spacing: 0.025em;
+                                /* Add subtle letter spacing */
+                            }
+                        </style>
+                        <p class="text-lg sm:text-xl text-gray-300 leading-relaxed tracking-wide font-light">
+                            <span class="font-semibold text-blue-400 dark:text-blue-300 mr-1">Hello!</span> I'm a
+                            passionate web developer dedicated to crafting engaging and intuitive digital
+                            experiences. I thrive on the intersection of creativity and technology, and I'm always eager
+                            to learn and grow.
+                        </p>
+                        <p class="text-lg sm:text-xl text-gray-300 leading-relaxed tracking-wide font-light">
+                            My expertise spans front-end development, including <span
+                                class="font-semibold text-purple-400 dark:text-purple-300">HTML</span>, <span
+                                class="font-semibold text-purple-400 dark:text-purple-300">CSS</span>, <span
+                                class="font-semibold text-purple-400 dark:text-purple-300">JavaScript</span>, and modern
+                            frameworks. I'm committed to delivering high-quality, user-friendly solutions that make a
+                            difference.
+                        </p>
+                        <div class="flex justify-center md:justify-start mt-8">
+                            <a href="#contact" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold rounded-full shadow-md transition-all duration-300 transform hover:scale-105
+                                        box-shadow-lg hover:shadow-xl
+                                        group">
+                                <span class="mr-2">Contact Me</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section id="projects" class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-gray-900 py-16"
+            style="background-image: url('your-image.jpg'); background-size: cover; background-repeat: no-repeat;">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl font-bold text-center text-green-600 dark:text-green-300 mb-12 section-heading">My
+                    Projects</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6
+                        hover:shadow-lg transition duration-300 transform hover:scale-102
+                        flex flex-col">
+                        <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4 project-title">Project 1
+                            - Fresh Fruits E-commerce Website
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4 project-description">
+                            This HTML code structures a website promoting fresh fruits, featuring product displays, an
+                            "About Us" section, and customer interaction elements.
+                            It includes navigation, a product menu, FAQs, service details, and a contact form. The
+                            layout is designed to attract customers and provide information about the fruit offerings
+                            and services.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="project1.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition duration-300
+                                  text-sm">
+                                Learn More
+                                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6
+                        hover:shadow-lg transition duration-300 transform hover:scale-102
+                        flex flex-col">
+                        <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4 project-title">Project 2
+                            - Interactive Web Features Showcase
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4 project-description">
+                            This HTML code implements a modern, interactive website demonstrating various web
+                            development features. It includes a dynamic to-do list, an image gallery with upload and
+                            delete functionality,
+                            and user authentication with sign-in and sign-up forms. The design utilizes Tailwind CSS for
+                            styling and JavaScript for enhanced user interaction and form validation.
+                            Sources
+                        </p>
+                        <div class="mt-auto">
+                            <a href="project2.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition duration-300
+                                  text-sm">
+                                Learn More
+                                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6
+                        hover:shadow-lg transition duration-300 transform hover:scale-102
+                        flex flex-col">
+                        <h3 class="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4 project-title">Project 3
+                            - Interactive Quiz Application
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4 project-description">
+                            This HTML code creates a dynamic quiz application with customizable settings and real-time
+                            feedback. It fetches questions from an external API, manages the quiz flow, and displays
+                            scores.
+                            The application includes features like a timer, question navigation, and visual cues for
+                            correct/incorrect answers.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="project3.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition duration-300
+                                  text-sm">
+                                Learn More
+                                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .project-card {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+
+                .project-title {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+
+                .project-description {
+                    font-family: 'Arial', sans-serif;
+                    line-height: 1.7;
+                }
+
+                .section-heading {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    letter-spacing: -0.02em;
+                }
+            </style>
+        </section>
+        <section id="todo-section">
+            <style>
+                #todo-section {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 250px;
+                    background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+                    margin: 40px auto;
+                    border-radius: 20px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    padding: 30px;
+                    transition: transform 0.4s ease, box-shadow 0.4s ease;
+                }
+
+                #todo-section:hover {
+                    transform: scale(1.02);
+                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+                }
+
+                .center-button-link {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 18px 35px;
+                    text-decoration: none;
+                    background: linear-gradient(to right, #00bcd4, #8e24aa);
+                    color: white;
+                    border-radius: 12px;
+                    font-size: 1.3em;
+                    font-weight: 600;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    transition: all 0.3s ease;
+                }
+
+                .center-button-link:hover {
+                    background: linear-gradient(to right, #8e24aa, #00bcd4);
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                }
+            </style>
+            <a href="Product Listing Page with Filtering and Sorting.html" class="center-button-link">
+                <strong>Visit Our ShopShore </strong>
+            </a>
+        </section>
+
+        <section id="contact"
+            class="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 py-16">
+            <div class="container mx-auto px-4">
+                <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 md:p-12">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Let's Connect</h2>
+                        <p class="text-gray-600 dark:text-gray-300">We'd love to hear from you!</p>
+                    </div>
+                    <form id="contact-form" class="max-w-lg mx-auto">
+                        <div class="mb-6">
+                            <label for="name"
+                                class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Name</label>
+                            <input type="text" id="name" name="name"
+                                class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Your Name" required>
+                            <div id="name-error" class="error-message text-red-500 text-xs italic mt-1"></div>
+                        </div>
+                        <div class="mb-6">
+                            <label for="email"
+                                class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Email</label>
+                            <input type="email" id="email" name="email"
+                                class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Your Email" required>
+                            <div id="email-error" class="error-message text-red-500 text-xs italic mt-1"></div>
+                        </div>
+                        <div class="mb-6">
+                            <label for="message"
+                                class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Message</label>
+                            <textarea id="message" name="message" rows="6"
+                                class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-200 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Your Message" required></textarea>
+                            <div id="message-error" class="error-message text-red-500 text-xs italic mt-1"></div>
+                        </div>
+                        <div class="flex justify-center">
+                            <button type="submit"
+                                class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline transition duration-300 ease-in-out">
+                                Send Message
+                            </button>
+                            <div id="form-success" class="success-message text-green-500 font-semibold ml-4 mt-3"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <style>
+                .error-message {
+                    display: none;
+                }
+
+                .success-message {
+                    display: none;
+                }
+            </style>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const contactForm = document.getElementById('contact-form');
+                    const nameInput = document.getElementById('name');
+                    const emailInput = document.getElementById('email');
+                    const messageInput = document.getElementById('message');
+                    const nameError = document.getElementById('name-error');
+                    const emailError = document.getElementById('email-error');
+                    const messageError = document.getElementById('message-error');
+                    const formSuccess = document.getElementById('form-success');
+                    const submitButton = document.querySelector('button[type="submit"]');
+
+                    let isSubmitting = false;
+
+                    function validateName() {
+                        if (!nameInput.value.trim()) {
+                            nameError.textContent = 'Name is required';
+                            nameError.style.display = 'block';
+                            return false;
+                        } else {
+                            nameError.style.display = 'none';
+                            return true;
+                        }
+                    }
+
+                    function validateEmail() {
+                        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+                        if (!emailInput.value.trim()) {
+                            emailError.textContent = 'Email is required';
+                            emailError.style.display = 'block';
+                            return false;
+                        } else if (!emailRegex.test(emailInput.value.trim())) {
+                            emailError.textContent = 'Invalid email format';
+                            emailError.style.display = 'block';
+                            return false;
+                        } else {
+                            emailError.style.display = 'none';
+                            return true;
+                        }
+                    }
+
+                    function validateMessage() {
+                        if (!messageInput.value.trim()) {
+                            messageError.textContent = 'Message is required';
+                            messageError.style.display = 'block';
+                            return false;
+                        } else {
+                            messageError.style.display = 'none';
+                            return true;
+                        }
+                    }
+
+                    nameInput.addEventListener('input', validateName);
+                    emailInput.addEventListener('input', validateEmail);
+                    messageInput.addEventListener('input', validateMessage);
+
+                    contactForm.addEventListener('submit', (event) => {
+                        event.preventDefault();
+
+                        if (isSubmitting) return;
+
+                        const isNameValid = validateName();
+                        const isEmailValid = validateEmail();
+                        const isMessageValid = validateMessage();
+
+                        if (isNameValid && isEmailValid && isMessageValid) {
+                            isSubmitting = true;
+                            submitButton.disabled = true;
+                            submitButton.textContent = 'Sending...';
+                            formSuccess.textContent = '';
+                            formSuccess.style.display = 'none';
+
+                            const formData = {
+                                name: nameInput.value.trim(),
+                                email: emailInput.value.trim(),
+                                message: messageInput.value.trim(),
+                            };
+
+                            // Simulate an asynchronous form submission (replace with your actual submission logic)
+                            setTimeout(() => {
+                                isSubmitting = false;
+                                submitButton.disabled = false;
+                                submitButton.textContent = 'Send Message';
+                                formSuccess.textContent = 'Message sent successfully!';
+                                formSuccess.style.display = 'block';
+
+                                nameInput.value = '';
+                                emailInput.value = '';
+                                messageInput.value = '';
+
+                                setTimeout(() => {
+                                    formSuccess.style.display = 'none';
+                                }, 5000);
+                            }, 2000);
+                        }
+                    });
+                });
+            </script>
+        </section>
+        <section id="todo-section">
+            <style>
+                #todo-section {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 250px;
+                    background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+                    margin: 40px auto;
+                    border-radius: 20px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                    padding: 30px;
+                    transition: transform 0.4s ease, box-shadow 0.4s ease;
+                }
+
+                #todo-section:hover {
+                    transform: scale(1.02);
+                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+                }
+
+                .center-button-link {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 18px 35px;
+                    text-decoration: none;
+                    background: linear-gradient(to right, #00bcd4, #8e24aa);
+                    color: white;
+                    border-radius: 12px;
+                    font-size: 1.3em;
+                    font-weight: 600;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    transition: all 0.3s ease;
+                }
+
+                .center-button-link:hover {
+                    background: linear-gradient(to right, #8e24aa, #00bcd4);
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                }
+            </style>
+            <a href="Modern To-Do List and Notes.html" class="center-button-link">
+                <strong>Open To-Do List and Notes </strong>
+            </a>
+        </section>
+        <section class="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8 rounded-lg shadow-lg max-w-4xl mx-auto my-12">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-extrabold text-indigo-400 mb-6 tracking-tight sm:text-5xl">
+                    Get in Touch
+                </h2>
+                <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Thank you for visiting my website. If you have any questions, opportunities, or just want to
+                    connect, feel free to reach out!
+                </p>
+                <div class="mb-12">
+                    <a href="mailto:gundapallir@gmail.com"
+                        class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-lg">
+                        gundapallir@gmail.com
+                    </a>
+                </div>
+                <p class="text-sm text-gray-500 mt-10">
+                    Rajesh website &copy; 2025 All rights reserved.
+                </p>
+            </div>
+        </section>
+        <script src="https://cdn.tailwindcss.com"></script>
+</body>
+
+</html>

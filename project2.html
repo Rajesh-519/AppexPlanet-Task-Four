@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Web Features</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for image gallery grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+        .gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .gallery img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .image-item {
+            position: relative;
+            display: inline-block;
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 0.8rem;
+        }
+        .image-item:hover .delete-button {
+            opacity: 1;
+        }
+        .hidden {
+            display: none;
+        }
+        .show {
+            display: block;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: green;
+        }
+        .deleted {
+            display: none;
+        }
+
+        /* Custom styles for animated title */
+        .animated-title {
+            animation: color-animation 5s infinite alternate;
+        }
+        @keyframes color-animation {
+            0% { color: #6366f1; }
+            20% { color: #a855f7; }
+            40% { color: #f43f5e; }
+            60% { color: #f97316; }
+            80% { color: #84cc16; }
+            100% { color: #22c55e; }
+        }
+
+        /* Custom styles for show more buttons */
+        .show-more-button {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .show-more-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .show-more-icon {
+            width: 1rem;
+            height: 1rem;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Custom styles for animated sections */
+        .animated-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .animated-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- New Styles --- */
+        /* Image Motion Styles */
+        .motion-image {
+            transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+        }
+        .motion-image:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Colorful Text Styles */
+        .colorful-text {
+            animation: rainbow-text 3s infinite alternate;
+        }
+        @keyframes rainbow-text {
+            0% { color: #ff0000; }
+            14% { color: #ff7f00; }
+            28% { color: #ffff00; }
+            42% { color: #00ff00; }
+            57% { color: #0000ff; }
+            71% { color: #4b0082; }
+            85% { color: #9400d3; }
+            100% { color: #ff0000; }
+        }
+
+        /* Advanced Card Styles */
+        .advanced-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .advanced-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Glassmorphism Styles */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* Wave Animation */
+        .wave-animation {
+            position: relative;
+            overflow: hidden;
+            padding-bottom: 2rem; /* Add padding at the bottom for the waves */
+        }
+
+        .wave-animation::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px; /* Height of the wave */
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 25' fill='%233b82f6'%3E%3Cpath d='M0 0c26.7 6.3 53.7 12.6 80 12.6s53.3-6.3 80-12.6 53.3-12.6 80-12.6 53.3 6.3 80 12.6 53.3 12.6 80 12.6 53.3-6.3 80-12.6 53.3-12.6 80-12.6 53.3 6.3 80 12.6 53.3 12.6 80 12.6v12h-800v-12z'/%3E%3C/svg%3E") repeat-x;
+            animation: wave 3s linear infinite;
+        }
+
+        @keyframes wave {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-800px);
+            }
+        }
+
+        body {
+            background-image: url('Nature.jpeg');
+            background-size: cover; /* This will make the image cover the entire background */
+            background-position: center; /* This will center the image in the background */
+            background-repeat: no-repeat; /* This will prevent the image from repeating */
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-100 font-inter wave-animation" style="overflow-y: auto;">  <header class="bg-blue-600 text-white py-6 shadow-md glassmorphism">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-semibold text-center animated-title">My Advanced Website</h1>
+        </div>
+    </header>
+
+    <nav class="bg-gray-800 text-white py-4 glassmorphism">
+        <div class="container mx-auto px-4 flex justify-center">
+            <ul class="flex space-x-8">
+                <li><a href="#about" class="hover:text-blue-300 transition duration-300 font-semibold">About</a></li>
+                <li><a href="#objectives" class="hover:text-blue-300 transition duration-300 font-semibold">Objectives</a></li>
+                <li><a href="#contact-form" class="hover:text-blue-300 transition duration-300 font-semibold">Contact</a></li>
+                <li><a href="#todo-list" class="hover:text-blue-300 transition duration-300 font-semibold">To-Do List</a></li>
+                <li><a href="#image-gallery" class="hover:text-blue-300 transition duration-300 font-semibold">Gallery</a></li>
+                <li><a href="#signin" class="hover:text-blue-300 transition duration-300 font-semibold">Sign In</a></li>
+                <li><a href="#signup" class="hover:text-blue-300 transition duration-300 font-semibold">Sign Up</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-10">
+        <section id="about" class="bg-white rounded-lg shadow-md p-8 mb-8 animated-section advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">About</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="text-gray-700 leading-relaxed">
+                        This task involves developing a multi-feature personal webpage to practice and demonstrate core web development concepts. The site includes a contact form, dynamic to-do list or image gallery, responsive layouts, and styling enhancements. Each component is designed to improve understanding of structured HTML, styled layouts with CSS, and interactivity with JavaScript.
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mt-4">
+                        The goal is to create a website that is not only functional but also visually appealing and user-friendly.  The use of modern CSS techniques and JavaScript ensures a dynamic and engaging experience.
+                    </p>
+                </div>
+                <div>
+                    <img src="Image2.png" alt="About Us" class="rounded-lg shadow-md motion-image">
+                </div>
+            </div>
+        </section>
+
+        <section id="objectives" class="bg-white rounded-lg shadow-md p-8 mb-8 animated-section advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">Objectives</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div>
+                    <img src="Image1.png" alt="Our Objectives" class="rounded-lg shadow-md motion-image">
+                </div>
+                <div>
+                    <ul class="list-disc list-inside space-y-3 text-gray-700 leading-relaxed">
+                        <li><span class="colorful-text">To enhance front-end development skills by building interactive web components using HTML, CSS, and JavaScript.</li>
+                        <li><span class="colorful-text">This project focuses on learning form handling, responsive design, and DOM manipulation through practical implementation.</span></li>
+                        <li><span class="colorful-text">Created a Contact Form Using HTML and CSS: Built and styled a functional form with various input fields.</span></li>
+                        <li><span class="colorful-text">Implemented JavaScript Form Validation: Ensured form data validity with real-time checks for required fields and proper formatting.</span></li>
+                        <li><span class="colorful-text">Designed a Responsive Layout Using Flexbox and CSS Grid: Developed a layout that adapts seamlessly to different screen sizes using Flexbox, Grid, and media queries.</span></li>
+                        <li><span class="colorful-text">Built a Dynamic To-Do List Using JavaScript: Added and removed tasks dynamically using JavaScript and DOM manipulation.</span></li>
+                        <li><span class="colorful-text">Created an Image Gallery Using JavaScript: Developed an interactive gallery allowing users to add and remove images in real time.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact-form" class="bg-white rounded-lg shadow-md p-8 mb-8 advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">Contact Us</h2>
+            <form id="contactForm" class="space-y-6">
+                <div>
+                    <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+                    <input type="text" id="name" name="name" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="name-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <div>
+                    <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                    <input type="email" id="email" name="email" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="email-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <div>
+                    <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message:</label>
+                    <textarea id="message" name="message" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism"></textarea>
+                    <p id="message-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">Send Message</button>
+            </form>
+        </section>
+
+        <section id="todo-list" class="bg-white rounded-lg shadow-md p-8 mb-8 advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">To-Do List</h2>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                <input type="text" id="todo-input" placeholder="Add new task..." class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                <button id="add-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">Add Task</button>
+            </div>
+            <div class="mb-6">
+                <label for="filter" class="block text-gray-700 text-sm font-bold mb-2">Filter:</label>
+                <select id="filter" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <option value="all">All Tasks</option>
+                    <option value="active">Active Tasks</option>
+                    <option value="completed">Completed Tasks</option>
+                </select>
+            </div>
+            <ul id="todo-list-container" class="space-y-3">
+                </ul>
+        </section>
+
+        <section id="image-gallery" class="bg-white rounded-lg shadow-md p-8 mb-8 advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">Image Gallery</h2>
+            <div class="gallery" id="image-gallery-container">
+                </div>
+            <div class="mt-6 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <input type="file" id="image-file-input" accept="image/*" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                <button id="add-image-button" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">Add Image</button>
+            </div>
+        </section>
+
+        <section id="signin" class="bg-white rounded-lg shadow-md p-8 mb-8 advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">Sign In</h2>
+            <form id="signInForm" class="space-y-6">
+                <div>
+                    <label for="signin-email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                    <input type="email" id="signin-email" name="email" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="signin-email-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <div>
+                    <label for="signin-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                    <input type="password" id="signin-password" name="password" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="signin-password-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">Sign In</button>
+            </form>
+            <p class="mt-4 text-gray-600 text-sm">Don't have an account? <a href="#signup" class="text-blue-500 hover:text-blue-700 font-semibold">Sign Up</a></p>
+        </section>
+
+        <section id="signup" class="bg-white rounded-lg shadow-md p-8 mb-8 advanced-card">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 gradient-text">Sign Up</h2>
+            <form id="signUpForm" class="space-y-6">
+                <div>
+                    <label for="signup-name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+                    <input type="text" id="signup-name" name="name" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="signup-name-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <div>
+                    <label for="signup-email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                    <input type="email" id="signup-email" name="email" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="signup-email-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <div>
+                    <label for="signup-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                    <input type="password" id="signup-password" name="password" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline glassmorphism">
+                    <p id="signup-password-error" class="text-red-500 text-xs italic mt-1" style="display: none;"></p>
+                </div>
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">Sign Up</button>
+            </form>
+            <p class="mt-4 text-gray-600 text-sm">Already have an account? <a href="#signin" class="text-blue-500 hover:text-blue-700 font-semibold">Sign In</a></p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12 shadow-md glassmorphism">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Rajesh Website. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Form Validation
+        const contactForm = document.getElementById('contactForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const messageInput = document.getElementById('message');
+        const nameError = document.getElementById('name-error');
+        const emailError = document.getElementById('email-error');
+        const messageError = document.getElementById('message-error');
+
+        function validateForm() {
+            let isValid = true;
+
+            if (nameInput.value.trim() === '') {
+                nameError.textContent = 'Name is required';
+                nameError.style.display = 'block';
+                isValid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            if (emailInput.value.trim() === '') {
+                emailError.textContent = 'Email is required';
+                emailError.style.display = 'block';
+                isValid = false;
+            } else if (!isValidEmail(emailInput.value.trim())) {
+                emailError.textContent = 'Invalid email format';
+                emailError.style.display = 'block';
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+            }
+
+            if (messageInput.value.trim() === '') {
+                messageError.textContent = 'Message isrequired';
+                messageError.style.display = 'block';isValid = false;
+            } else {
+                messageError.style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        function isValidEmail(email) {
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+            return emailRegex.test(email);
+        }
+
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (validateForm()) {
+                alert('Message sent successfully!');
+                contactForm.reset();
+            }
+        });
+
+        // To-Do List
+        const todoInput = document.getElementById('todo-input');
+        const addButton = document.getElementById('add-button');
+        const todoListContainer = document.getElementById('todo-list-container');
+        const filterSelect = document.getElementById('filter');
+
+        let tasks = [];
+
+        function addTask() {
+            const taskText = todoInput.value.trim();
+            if (taskText !== '') {
+                const newTask = {
+                    id: Date.now(),
+                    text: taskText,
+                    completed: false,
+                    deleted: false
+                };
+                tasks.push(newTask);
+                renderTasks();
+                todoInput.value = '';
+            } else {
+                alert('Please enter a task!');
+            }
+        }
+
+        function toggleComplete(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+            }
+            renderTasks();
+        }
+
+        function deleteTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.deleted = true;
+            }
+            renderTasks();
+        }
+
+        function renderTasks() {
+            todoListContainer.innerHTML = '';
+            const filterValue = filterSelect.value;
+
+            tasks.forEach(task => {
+                if (!task.deleted) {
+                    if (filterValue === 'all' ||
+                        (filterValue === 'active' && !task.completed) ||
+                        (filterValue === 'completed' && task.completed)) {
+                        const listItem = document.createElement('li');
+                        listItem.className = "bg-white rounded-md shadow-sm py-3 px-4 flex justify-between items-center glassmorphism";
+                        if (task.completed) {
+                            listItem.classList.add('completed')
+                        }
+                        listItem.textContent = task.text;
+
+                        const buttonContainer = document.createElement('div');
+
+                        const completeButton = document.createElement('button');
+                        completeButton.textContent = task.completed ? 'Reactivate' : 'Complete';
+                        completeButton.className = task.completed
+                            ? "bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline text-sm"
+                            : "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline text-sm";
+                        completeButton.addEventListener('click', () => toggleComplete(task.id));
+                        buttonContainer.appendChild(completeButton);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.className = "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded focus:outline-none focus:shadow-outline text-sm ml-2";
+                        deleteButton.addEventListener('click', () => deleteTask(task.id));
+                        buttonContainer.appendChild(deleteButton);
+
+                        listItem.appendChild(buttonContainer);
+                        todoListContainer.appendChild(listItem);
+                    }
+                }
+            });
+        }
+
+        addButton.addEventListener('click', addTask);
+        todoInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+        filterSelect.addEventListener('change', renderTasks);
+
+        renderTasks();
+
+        // Image Gallery
+        const imageGalleryContainer = document.getElementById('image-gallery-container');
+        const addImageButton = document.getElementById('add-image-button');
+        const imageFileInput = document.getElementById('image-file-input');
+
+        function addImage() {
+            const imageFile = imageFileInput.files[0];
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imageUrl = e.target.result;
+
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item';
+
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Gallery Image';
+                    img.classList.add('motion-image'); // Apply motion class
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.className = 'delete-button';
+                    deleteButton.addEventListener('click', () => {
+                        imageItem.remove();
+                    });
+
+                    imageItem.appendChild(img);
+                    imageItem.appendChild(deleteButton);
+                    imageGalleryContainer.appendChild(imageItem);
+                    imageFileInput.value = '';
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                alert('Please select an image file!');
+            }
+        }
+
+        addImageButton.addEventListener('click', addImage);
+        imageFileInput.addEventListener('change', () => {
+            addImage();
+        });
+
+        imageGalleryContainer.innerHTML = '';
+
+        // Sign In and Sign Up
+        const signInForm = document.getElementById('signInForm');
+        const signUpForm = document.getElementById('signUpForm');
+        const signinEmailInput = document.getElementById('signin-email');
+        const signinPasswordInput = document.getElementById('signin-password');
+        const signupNameInput = document.getElementById('signup-name');
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const signinEmailError = document.getElementById('signin-email-error');
+        const signinPasswordError = document.getElementById('signin-password-error');
+        const signupNameError = document.getElementById('signup-name-error');
+        const signupEmailError = document.getElementById('signup-email-error');
+        const signupPasswordError = document.getElementById('signup-password-error');
+
+        function validateSignInForm() {
+            let isValid = true;
+
+            if (signinEmailInput.value.trim() === '') {
+                signinEmailError.textContent = 'Email is required';
+                signinEmailError.style.display = 'block';
+                isValid = false;
+            } else if (!isValidEmail(signinEmailInput.value.trim())) {
+                signinEmailError.textContent = 'Invalid email format';
+                signinEmailError.style.display = 'block';
+                isValid = false;
+            } else {
+                signinEmailError.style.display = 'none';
+            }
+
+            if (signinPasswordInput.value.trim() === '') {
+                signinPasswordError.textContent = 'Password is required';
+                signinPasswordError.style.display = 'block';
+                isValid = false;
+            } else {
+                signinPasswordError.style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        function validateSignUpForm() {
+            let isValid = true;
+
+            if (signupNameInput.value.trim() === '') {
+                signupNameError.textContent = 'Name is required';
+                signupNameError.style.display = 'block';
+                isValid = false;
+            } else {
+                signupNameError.style.display = 'none';
+            }
+
+            if (signupEmailInput.value.trim() === '') {
+                signupEmailError.textContent = 'Email is required';
+                signupEmailError.style.display = 'block';
+                isValid = false;
+            } else if (!isValidEmail(signupEmailInput.value.trim())) {
+                signupEmailError.textContent = 'Invalid email format';
+                signupEmailError.style.display = 'block';
+                isValid = false;
+            } else {
+                signupEmailError.style.display = 'none';
+            }
+
+            if (signupPasswordInput.value.trim() === '') {
+                signupPasswordError.textContent = 'Password is required';
+                signupPasswordError.style.display = 'block';
+                isValid = false;
+            } else if (signupPasswordInput.value.trim().length < 6) {
+                signupPasswordError.textContent = 'Password must be at least 6 characters';
+                signupPasswordError.style.display = 'block';
+                isValid = false;
+            } else {
+                signupPasswordError.style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        signInForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (validateSignInForm()) {
+                alert('Signed in successfully!');
+                signInForm.reset();
+                window.location.href = '#';
+            }
+        });
+
+        signUpForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (validateSignUpForm()) {
+                alert('Signed up successfully!');
+                signUpForm.reset();
+                window.location.href = '#';
+            }
+        });
+
+        const aboutSection = document.getElementById('about');
+        const objectivesSection = document.getElementById('objectives');
+
+
+        window.onload = function () {
+            // Check for hash and show соответствующий section
+            if (window.location.hash === '#about') {
+                document.getElementById("about").classList.remove("hidden");
+                document.getElementById("about").classList.add("show");
+            } else if (window.location.hash === '#objectives') {
+                document.getElementById("objectives").classList.remove("hidden");
+                document.getElementById("objectives").classList.add("show");
+            }            else if (window.location.hash === '#signin') {
+                document.getElementById("signin").classList.remove("hidden");
+                document.getElementById("signin").classList.add("show");
+            }
+            else if (window.location.hash === '#signup') {
+                document.getElementById("signup").classList.remove("hidden");
+                document.getElementById("signup").classList.add("show");
+            }
+             // Call revealSections on load to handle initial visibility
+            revealSections();
+        };
+
+        document.querySelector('a[href="#about"]').addEventListener('click', function () {
+            document.getElementById("about").classList.remove("hidden");
+            document.getElementById("about").classList.add("show");
+            document.getElementById("objectives").classList.add("hidden");
+             document.getElementById("signin").classList.add("hidden");
+              document.getElementById("signup").classList.add("hidden");
+        });
+
+        document.querySelector('a[href="#objectives"]').addEventListener('click', function () {
+            document.getElementById("objectives").classList.remove("hidden");
+            document.getElementById("objectives").classList.add("show");
+            document.getElementById("about").classList.add("hidden");
+             document.getElementById("signin").classList.add("hidden");
+              document.getElementById("signup").classList.add("hidden");
+        });
+
+         document.querySelector('a[href="#signin"]').addEventListener('click', function () {
+            document.getElementById("signin").classList.remove("hidden");
+            document.getElementById("signin").classList.add("show");
+            document.getElementById("about").classList.add("hidden");
+            document.getElementById("objectives").classList.add("hidden");
+             document.getElementById("signup").classList.add("hidden");
+        });
+
+        document.querySelector('a[href="#signup"]').addEventListener('click', function () {
+            document.getElementById("signup").classList.remove("hidden");
+            document.getElementById("signup").classList.add("show");
+            document.getElementById("about").classList.add("hidden");
+            document.getElementById("objectives").classList.add("hidden");
+             document.getElementById("signin").classList.add("hidden");
+        });
+
+        document.querySelector('a[href="#signin"]').addEventListener('click', function() {
+            document.getElementById("signin").classList.remove("hidden");
+            document.getElementById("signin").classList.add("show");
+            document.getElementById("signup").classList.add("hidden");
+        });
+
+        document.querySelector('a[href="#signup"]').addEventListener('click', function() {
+            document.getElementById("signup").classList.remove("hidden");
+            document.getElementById("signup").classList.add("show");
+            document.getElementById("signin").classList.add("hidden");
+        });
+
+        function revealSections() {
+            const sections = document.querySelectorAll('.animated-section');
+            sections.forEach(section => {
+                if (section.getBoundingClientRect().top < window.innerHeight * 0.8) {
+                    section.classList.add('show');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealSections);
+
+
+    </script>
+</body>
+</html>

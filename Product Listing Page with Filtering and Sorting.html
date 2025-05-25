@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSphere - Modern Product Listing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom scrollbar for filter sidebar for better aesthetics */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            /* Gray-300 */
+            border-radius: 10px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+            /* Gray-400 */
+        }
+
+        /* Keyframe for a subtle fade-in-up animation for product cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Apply animation to product cards for a dynamic entry effect */
+        .product-card-animated {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+            /* Start invisible for animation */
+        }
+
+        /* Custom styles for the "ShopSphere" call-to-action section */
+        #shop-sphere-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background-color: #e2e8f0;
+            /* Light blue-gray background */
+            margin: 20px auto;
+            /* Center horizontally with margin */
+            border-radius: 15px;
+            /* More rounded corners */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            /* Inner shadow for depth */
+            padding: 20px;
+            /* Add some padding */
+            max-width: 90%;
+            /* Limit width for better appearance */
+            border: 1px solid #cbd5e1;
+            /* Subtle border */
+        }
+
+        /* Styling for the main call-to-action button */
+        .shop-sphere-button-link {
+            display: inline-block;
+            padding: 18px 35px;
+            /* Larger padding for a prominent button */
+            text-align: center;
+            text-decoration: none;
+            background: linear-gradient(145deg, #4f46e5, #6366f1);
+            /* Gradient background for a modern look */
+            color: white;
+            /* White text for contrast */
+            border-radius: 10px;
+            /* Slightly more rounded button */
+            font-size: 1.3em;
+            /* Larger font size */
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            /* Stronger shadow for depth */
+            transition: all 0.3s ease;
+            /* Smooth transition for all properties */
+            letter-spacing: 0.5px;
+            /* Slightly increased letter spacing */
+            text-transform: uppercase;
+            /* Uppercase text for emphasis */
+        }
+
+        /* Hover effects for the call-to-action button */
+        .shop-sphere-button-link:hover {
+            background: linear-gradient(145deg, #6366f1, #4f46e5);
+            /* Reverse gradient on hover */
+            transform: translateY(-3px);
+            /* Lift effect on hover */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            /* Enhanced shadow on hover */
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col font-inter antialiased bg-gray-100">
+
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-bold mb-2 md:mb-0">ShopSphere</h1>
+            <div class="relative w-full md:w-1/3">
+                <input type="text" id="searchInput" placeholder="Search products..."
+                    class="w-full p-2 pl-10 rounded-lg bg-white bg-opacity-20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto flex flex-col lg:flex-row flex-grow p-4 gap-6">
+
+        <aside
+            class="w-full lg:w-1/4 bg-white p-6 rounded-xl shadow-md space-y-6 sidebar-scroll overflow-y-auto max-h-[calc(100vh-120px)]">
+            <h2 class="text-2xl font-semibold text-gray-800 border-b pb-3 mb-4">Filters & Sorting</h2>
+
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Categories</h3>
+                <div id="categoryFilter" class="space-y-2">
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Price Range (₹)</h3>
+                <div class="flex items-center space-x-3">
+                    <input type="number" id="minPrice" placeholder="Min"
+                        class="w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span>-</span>
+                    <input type="number" id="maxPrice" placeholder="Max"
+                        class="w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <button id="applyPriceFilter"
+                    class="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md">Apply
+                    Price</button>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Minimum Rating</h3>
+                <select id="ratingFilter"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="0">All Ratings</option>
+                    <option value="4">4 Stars & Up</option>
+                    <option value="3">3 Stars & Up</option>
+                    <option value="2">2 Stars & Up</option>
+                    <option value="1">1 Star & Up</option>
+                </select>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium text-gray-700 mb-3">Sort By</h3>
+                <select id="sortOptions"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="default">Default</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="rating-desc">Rating: High to Low</option>
+                    <option value="name-asc">Name: A-Z</option>
+                </select>
+            </div>
+
+            <button id="clearFilters"
+                class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition duration-300 shadow-md">Clear
+                All Filters</button>
+        </aside>
+
+        <section class="w-full lg:w-3/4 bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-800 border-b pb-3 mb-4">Products</h2>
+            <div id="productList"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+            <div id="noProductsFound" class="hidden text-center text-gray-600 text-xl mt-8">
+                No products found matching your criteria.
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Sample Product Data - A rich dataset for demonstration
+        const products = [
+            { id: 1, name: "Wireless Bluetooth Headphones", category: "Electronics", price: 2999, rating: 4.5, image: "Wireless Headphones.jpeg", description: "Immerse yourself in high-fidelity audio with these comfortable, long-lasting wireless headphones." },
+            { id: 2, name: "Men's Casual T-Shirt", category: "Apparel", price: 799, rating: 4.0, image: "Men's T-shirt.jpeg", description: "Soft cotton blend t-shirt, perfect for everyday wear. Available in multiple colors." },
+            { id: 3, name: "Smart LED TV 4K", category: "Electronics", price: 45000, rating: 4.8, image: "Smart LED Tv 4K.jpeg", description: "Experience stunning visuals with vibrant colors and incredible clarity on this 4K Smart TV." },
+            { id: 4, name: "Women's Running Shoes", category: "Footwear", price: 1899, rating: 4.2, image: "Women's Running Shoes.jpeg", description: "Lightweight and breathable running shoes designed for optimal performance and comfort." },
+            { id: 5, name: "Stainless Steel Water Bottle", category: "Home Goods", price: 499, rating: 4.7, image: "Stainless Steel Water Bottle.jpeg", description: "Keep your drinks hot or cold for hours with this durable, eco-friendly water bottle." },
+            { id: 6, name: "Gaming Mouse RGB", category: "Electronics", price: 1250, rating: 4.6, image: "Gaming Mouse RGB.jpeg", description: "High-precision gaming mouse with customizable RGB lighting and ergonomic design." },
+            { id: 7, name: "Denim Jeans Slim Fit", category: "Apparel", price: 1499, rating: 3.9, image: "Denim Jeans Slim fit.jpeg", description: "Classic slim-fit denim jeans, versatile for any casual or semi-formal occasion." },
+            { id: 8, name: "Portable Bluetooth Speaker", category: "Electronics", price: 3500, rating: 4.3, image: "Portable Bluetooth speaker.jpeg", description: "Compact and powerful Bluetooth speaker with rich bass and long battery life." },
+            { id: 9, name: "Leather Wallet", category: "Accessories", price: 650, rating: 4.1, image: "Leather Wallet.jpeg", description: "Genuine leather wallet with multiple card slots and a sleek, minimalist design." },
+            { id: 10, name: "Yoga Mat Eco-Friendly", category: "Sports & Fitness", price: 999, rating: 4.4, image: "yoga mat eco-friendly.jpeg", description: "Non-slip, eco-friendly yoga mat providing excellent grip and cushioning for your practice." },
+            { id: 11, name: "Digital Camera DSLR", category: "Electronics", price: 55000, rating: 4.9, image: "Digital camera DSLR.jpeg", description: "Capture professional-grade photos and videos with this high-performance DSLR camera." },
+            { id: 12, name: "Cotton Bed Sheets King Size", category: "Home Goods", price: 2500, rating: 4.0, image: "cotton bedsheet king size.jpeg", description: "Luxuriously soft and breathable cotton bed sheets for a comfortable night's sleep." },
+            { id: 13, name: "Smartwatch Fitness Tracker", category: "Electronics", price: 8999, rating: 4.7, image: "Smart watch fitness tracker.jpeg", description: "Track your fitness, monitor health metrics, and stay connected with this advanced smartwatch." },
+            { id: 14, name: "Backpack Travel Edition", category: "Bags", price: 1999, rating: 4.2, image: "Backpack travel eddition.jpeg", description: "Spacious and durable backpack, perfect for travel, hiking, or daily commutes." },
+            { id: 15, name: "Coffee Maker Drip", category: "Home Appliances", price: 3200, rating: 4.5, image: "Coffee Maker Drip.jpeg", description: "Brew delicious coffee effortlessly with this programmable drip coffee maker." },
+            { id: 16, name: "Electric Kettle", category: "Home Appliances", price: 1100, rating: 4.3, image: "Electric kettle.jpeg", description: "Boil water rapidly for tea, coffee, or instant meals with this sleek electric kettle." },
+            { id: 17, name: "Blender Mixer Grinder", category: "Home Appliances", price: 4500, rating: 4.6, image: "Blender mixer grinder.jpeg", description: "Powerful blender and mixer grinder for all your kitchen needs, from smoothies to spices." },
+            { id: 18, name: "Air Fryer Digital", category: "Home Appliances", price: 7500, rating: 4.8, image: "Air Fryer Digital.jpeg", description: "Enjoy healthier fried foods with less oil using this versatile digital air fryer." },
+            { id: 19, name: "Cookware Set Non-Stick", category: "Kitchenware", price: 3800, rating: 4.1, image: "Cookware Set Non-stick.jpeg", description: "Complete non-stick cookware set for easy and healthy cooking, durable and easy to clean." },
+            { id: 20, name: "Dining Table Wooden", category: "Furniture", price: 12000, rating: 4.0, image: "Modern And Accent Wooden Dining Table.jpeg", description: "Elegant wooden dining table, seats up to six, perfect for family meals and gatherings." },
+        ];
+
+        // Global variables for managing product state and filters
+        let filteredProducts = [...products]; // A mutable copy of products for filtering
+        let currentFilters = {
+            category: 'All',
+            minPrice: null,
+            maxPrice: null,
+            minRating: 0,
+            searchTerm: ''
+        };
+        let currentSort = 'default';
+
+        // DOM element references for easier access
+        const productListDiv = document.getElementById('productList');
+        const categoryFilterDiv = document.getElementById('categoryFilter');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const applyPriceFilterBtn = document.getElementById('applyPriceFilter');
+        const ratingFilterSelect = document.getElementById('ratingFilter');
+        const sortOptionsSelect = document.getElementById('sortOptions');
+        const searchInput = document.getElementById('searchInput');
+        const clearFiltersBtn = document.getElementById('clearFilters');
+        const noProductsFoundDiv = document.getElementById('noProductsFound');
+
+        /**
+         * Renders the product cards into the DOM.
+         * Applies a fade-in-up animation to each card.
+         * @param {Array<Object>} productsToRender - The array of product objects to display.
+         */
+        function renderProducts(productsToRender) {
+            productListDiv.innerHTML = ''; // Clear existing products to prevent duplicates
+            // Show/hide "No products found" message based on the filtered results
+            if (productsToRender.length === 0) {
+                noProductsFoundDiv.classList.remove('hidden');
+                return;
+            } else {
+                noProductsFoundDiv.classList.add('hidden');
+            }
+
+            // Iterate over products and create HTML for each card
+            productsToRender.forEach((product, index) => {
+                const productCard = `
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden group transform transition duration-300 hover:scale-105 hover:shadow-xl product-card-animated" style="animation-delay: ${index * 0.05}s;">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover object-center transition duration-300 group-hover:scale-110 group-hover:brightness-90" onerror="this.onerror=null;this.src='https://placehold.co/400x300/cccccc/333333?text=Image+Not+Found';">
+                        <div class="p-5">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${product.name}</h3>
+                            <p class="text-sm text-gray-600 mb-2">${product.category}</p>
+                            <p class="text-xs text-gray-500 mb-3 line-clamp-2">${product.description}</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xl font-bold text-blue-700">₹${product.price.toLocaleString('en-IN')}</span>
+                                <div class="flex items-center text-yellow-500">
+                                    ${generateStars(product.rating)}
+                                    <span class="ml-1 text-gray-600 text-sm">(${product.rating})</span>
+                                </div>
+                            </div>
+                            <button class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300 font-medium hover:shadow-lg hover:-translate-y-0.5">Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+                productListDiv.innerHTML += productCard; // Append card to the product list
+            });
+        }
+
+        /**
+         * Generates HTML for star icons based on a given rating.
+         * Uses Font Awesome star icons for a professional look.
+         * @param {number} rating - The product rating (e.g., 4.5).
+         * @returns {string} HTML string of star icons.
+         */
+        function generateStars(rating) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (rating >= i) {
+                    // Full star
+                    starsHtml += '<i class="fas fa-star"></i>';
+                } else if (rating > i - 1 && rating < i) {
+                    // Half star (using Font Awesome's half-star icon)
+                    starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    // Empty star
+                    starsHtml += '<i class="far fa-star text-gray-300"></i>';
+                }
+            }
+            return starsHtml;
+        }
+
+        /**
+         * Dynamically populates the category filter section with unique categories
+         * extracted from the product data.
+         */
+        function setupCategoryFilters() {
+            // Get unique categories from the products array
+            const categories = [...new Set(products.map(p => p.category))];
+            let categoryHtml = `
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="category" value="All" class="form-radio h-4 w-4 text-blue-600 rounded-full" checked>
+                    <span class="ml-2 text-gray-700">All Categories</span>
+                </label>
+            `;
+            // Create a radio button for each unique category
+            categories.forEach(category => {
+                categoryHtml += `
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="category" value="${category}" class="form-radio h-4 w-4 text-blue-600 rounded-full">
+                        <span class="ml-2 text-gray-700">${category}</span>
+                    </label>
+                `;
+            });
+            categoryFilterDiv.innerHTML = categoryHtml;
+
+            // Add a single event listener to the parent container for efficiency
+            categoryFilterDiv.addEventListener('change', (event) => {
+                if (event.target.name === 'category') {
+                    currentFilters.category = event.target.value;
+                    applyFiltersAndSort();
+                }
+            });
+        }
+
+        /**
+         * Applies all active filters (search, category, price, rating) and
+         * then sorts the products based on the selected sorting option.
+         * Finally, re-renders the filtered and sorted products.
+         */
+        function applyFiltersAndSort() {
+            let tempProducts = [...products]; // Start with a fresh copy of all products
+
+            // 1. Apply Search Filter: Case-insensitive search on product names
+            if (currentFilters.searchTerm) {
+                const lowerCaseSearchTerm = currentFilters.searchTerm.toLowerCase();
+                tempProducts = tempProducts.filter(product =>
+                    product.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    product.description.toLowerCase().includes(lowerCaseSearchTerm) // Search in description too
+                );
+            }
+
+            // 2. Apply Category Filter: Filter by selected category
+            if (currentFilters.category !== 'All') {
+                tempProducts = tempProducts.filter(product => product.category === currentFilters.category);
+            }
+
+            // 3. Apply Price Filter: Filter by minimum and maximum price
+            if (currentFilters.minPrice !== null) {
+                tempProducts = tempProducts.filter(product => product.price >= currentFilters.minPrice);
+            }
+            if (currentFilters.maxPrice !== null) {
+                tempProducts = tempProducts.filter(product => product.price <= currentFilters.maxPrice);
+            }
+
+            // 4. Apply Rating Filter: Filter by minimum rating
+            if (currentFilters.minRating > 0) {
+                tempProducts = tempProducts.filter(product => product.rating >= currentFilters.minRating);
+            }
+
+            // 5. Apply Sorting: Sort products based on the chosen option
+            switch (currentSort) {
+                case 'price-asc':
+                    tempProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    tempProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'rating-desc':
+                    tempProducts.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'name-asc':
+                    tempProducts.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'default':
+                default:
+                    // No specific sorting, maintain original order or default order
+                    break;
+            }
+
+            filteredProducts = tempProducts; // Update the global filtered products array
+            renderProducts(filteredProducts); // Re-render the UI with the new list
+        }
+
+        // --- Event Listeners Setup ---
+
+        // Search input: Triggers filter on each keyup event
+        searchInput.addEventListener('keyup', (event) => {
+            currentFilters.searchTerm = event.target.value.trim(); // Trim whitespace
+            applyFiltersAndSort();
+        });
+
+        // Apply Price Filter button click
+        applyPriceFilterBtn.addEventListener('click', () => {
+            const min = parseFloat(minPriceInput.value);
+            const max = parseFloat(maxPriceInput.value);
+
+            // Update filters, handling invalid number inputs gracefully
+            currentFilters.minPrice = isNaN(min) ? null : min;
+            currentFilters.maxPrice = isNaN(max) ? null : max;
+
+            applyFiltersAndSort();
+        });
+
+        // Rating filter selection change
+        ratingFilterSelect.addEventListener('change', (event) => {
+            currentFilters.minRating = parseFloat(event.target.value);
+            applyFiltersAndSort();
+        });
+
+        // Sort options selection change
+        sortOptionsSelect.addEventListener('change', (event) => {
+            currentSort = event.target.value;
+            applyFiltersAndSort();
+        });
+
+        // Clear All Filters button click
+        clearFiltersBtn.addEventListener('click', () => {
+            // Reset all filter state variables to their initial defaults
+            currentFilters = {
+                category: 'All',
+                minPrice: null,
+                maxPrice: null,
+                minRating: 0,
+                searchTerm: ''
+            };
+            currentSort = 'default';
+
+            // Reset all UI elements to reflect the default filter state
+            document.querySelector('input[name="category"][value="All"]').checked = true;
+            minPriceInput.value = '';
+            maxPriceInput.value = '';
+            ratingFilterSelect.value = '0';
+            sortOptionsSelect.value = 'default';
+            searchInput.value = '';
+
+            applyFiltersAndSort(); // Re-apply filters to show all products
+        });
+
+        // Initial render on page load: Setup categories and display all products
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCategoryFilters();
+            renderProducts(products); // Render all products initially
+        });
+    </script>
+</body>
+
+</html>

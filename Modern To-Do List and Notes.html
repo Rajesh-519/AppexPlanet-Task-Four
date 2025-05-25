@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Productivity Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* Custom CSS for global styles, scrollbar, and animations */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a202c, #2d3748); /* Dark gradient background */
+            color: #e2e8f0; /* Light text color */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6a758a;
+        }
+
+        /* Custom checkbox styling */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #63b3ed; /* Blue border */
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #63b3ed; /* Blue background when checked */
+            border-color: #63b3ed;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '\2713'; /* Checkmark symbol */
+            font-size: 14px;
+            color: #1a202c; /* Dark color for checkmark */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+        }
+
+        /* Input focus styles */
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #63b3ed; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5); /* Blue shadow on focus */
+        }
+
+        /* Shake animation for input errors */
+        .shake {
+            animation: shakeX 0.5s;
+        }
+
+        /* Hide controls by default and show on hover */
+        .todo-item-controls, .note-item-controls {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .todo-item:hover .todo-item-controls,
+        .note-item:hover .note-item-controls {
+            opacity: 1;
+        }
+
+        /* Ensure consistent input field heights */
+        input[type="text"], textarea {
+            min-height: 40px; /* Standard height for inputs */
+            resize: vertical; /* Allow vertical resizing for textarea */
+        }
+    </style>
+</head>
+<body>
+
+    <button id="toggle-app-button" class="fixed top-5 right-5 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center space-x-2">
+        <i class="fas fa-rocket text-xl"></i>
+        <span class="hidden md:inline-block"> Modern To-Do List and Notes </span>
+    </button>
+
+    <div id="app-container" class="hidden animate__animated animate__fadeIn max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-gray-800 bg-opacity-90 rounded-2xl shadow-2xl backdrop-blur-sm">
+
+        <section class="bg-gray-900 bg-opacity-70 p-6 rounded-xl shadow-lg flex flex-col h-full">
+            <h1 class="text-3xl font-bold mb-6 text-blue-400 flex items-center justify-center">
+                <i class="fas fa-check-circle mr-3"></i> To-Do List
+            </h1>
+
+            <div class="flex mb-4">
+                <input type="text" id="todo-input" placeholder="Add a new task..."
+                       class="flex-grow p-3 rounded-l-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                <button id="add-todo-button"
+                        class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-r-lg font-semibold transition-colors duration-200">
+                    Add Task
+                </button>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center mb-6 text-sm">
+                <div class="flex space-x-2 mb-2 sm:mb-0">
+                    <button class="filter-button px-3 py-1 rounded-full bg-gray-700 text-gray-300 hover:bg-blue-500 hover:text-white transition-colors duration-200" data-filter="all">All (<span id="count-all">0</span>)</button>
+                    <button class="filter-button px-3 py-1 rounded-full bg-gray-700 text-gray-300 hover:bg-blue-500 hover:text-white transition-colors duration-200" data-filter="active">Active (<span id="count-active">0</span>)</button>
+                    <button class="filter-button px-3 py-1 rounded-full bg-gray-700 text-gray-300 hover:bg-blue-500 hover:text-white transition-colors duration-200" data-filter="completed">Completed (<span id="count-completed">0</span>)</button>
+                </div>
+                <button id="clear-done-button" class="px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors duration-200">
+                    Clear Done
+                </button>
+            </div>
+
+            <ul id="todo-list" class="flex-grow overflow-y-auto space-y-3 pr-2">
+                </ul>
+
+            <button id="clear-all-todos-button" class="mt-6 w-full bg-red-700 hover:bg-red-800 text-white p-3 rounded-lg font-semibold transition-colors duration-200">
+                Clear All Tasks
+            </button>
+        </section>
+
+        <section class="bg-gray-900 bg-opacity-70 p-6 rounded-xl shadow-lg flex flex-col h-full">
+            <h1 class="text-3xl font-bold mb-6 text-purple-400 flex items-center justify-center">
+                <i class="fas fa-sticky-note mr-3"></i> My Notes
+            </h1>
+
+            <div class="flex flex-col mb-4">
+                <textarea id="note-input" placeholder="Write a new note..." rows="3"
+                          class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 transition-all duration-200 mb-2"></textarea>
+                <button id="add-note-button"
+                        class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg font-semibold transition-colors duration-200">
+                    Add Note
+                </button>
+            </div>
+
+            <div id="notes-list" class="flex-grow overflow-y-auto space-y-3 pr-2">
+                </div>
+
+            <button id="clear-all-notes-button" class="mt-6 w-full bg-red-700 hover:bg-red-800 text-white p-3 rounded-lg font-semibold transition-colors duration-200">
+                Clear All Notes
+            </button>
+        </section>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const toggleAppButton = document.getElementById('toggle-app-button');
+        const appContainer = document.getElementById('app-container');
+
+        const todoInput = document.getElementById('todo-input');
+        const addTodoButton = document.getElementById('add-todo-button');
+        const todoList = document.getElementById('todo-list');
+        const filterButtons = document.querySelectorAll('.filter-button');
+        const clearDoneButton = document.getElementById('clear-done-button');
+        const clearAllTodosButton = document.getElementById('clear-all-todos-button');
+        const countAll = document.getElementById('count-all');
+        const countActive = document.getElementById('count-active');
+        const countCompleted = document.getElementById('count-completed');
+
+        const noteInput = document.getElementById('note-input');
+        const addNoteButton = document.getElementById('add-note-button');
+        const notesList = document.getElementById('notes-list');
+        const clearAllNotesButton = document.getElementById('clear-all-notes-button');
+
+        // --- Data Storage (localStorage) ---
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        let currentFilter = 'all'; // Default filter for todos
+
+        // --- Helper Functions ---
+
+        /**
+         * Saves the current todos array to localStorage.
+         */
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        /**
+         * Saves the current notes array to localStorage.
+         */
+        function saveNotes() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        /**
+         * Shows a temporary message box instead of alert().
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success', 'error', 'info'.
+         */
+        function showMessageBox(message, type = 'info') {
+            const messageBox = document.createElement('div');
+            messageBox.textContent = message;
+            messageBox.className = `fixed bottom-5 right-5 p-4 rounded-lg shadow-xl text-white z-50 animate__animated animate__fadeInUp`;
+
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-600');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-600');
+            } else {
+                messageBox.classList.add('bg-blue-600');
+            }
+
+            document.body.appendChild(messageBox);
+
+            setTimeout(() => {
+                messageBox.classList.remove('animate__fadeInUp');
+                messageBox.classList.add('animate__fadeOutDown');
+                messageBox.addEventListener('animationend', () => messageBox.remove());
+            }, 3000);
+        }
+
+        /**
+         * Toggles the visibility of the main application container with fade animations.
+         */
+        function toggleAppContainer() {
+            if (appContainer.classList.contains('hidden')) {
+                appContainer.classList.remove('hidden', 'animate__fadeOut');
+                appContainer.classList.add('animate__fadeIn');
+            } else {
+                appContainer.classList.remove('animate__fadeIn');
+                appContainer.classList.add('animate__fadeOut');
+                appContainer.addEventListener('animationend', () => {
+                    appContainer.classList.add('hidden');
+                }, { once: true }); // Ensure listener is removed after one use
+            }
+        }
+
+        // --- To-Do List Functions ---
+
+        /**
+         * Adds a new to-do item to the list.
+         */
+        function addTodo() {
+            const taskText = todoInput.value.trim();
+            if (taskText) {
+                todos.push({
+                    id: Date.now(), // Unique ID for the task
+                    text: taskText,
+                    completed: false
+                });
+                todoInput.value = ''; // Clear input
+                saveTodos();
+                renderTodos();
+                showMessageBox('Task added successfully!', 'success');
+            } else {
+                todoInput.classList.add('shake');
+                setTimeout(() => todoInput.classList.remove('shake'), 500);
+                showMessageBox('Task cannot be empty!', 'error');
+            }
+        }
+
+        /**
+         * Toggles the completion status of a to-do item.
+         * @param {number} id - The ID of the to-do item.
+         */
+        function toggleComplete(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                renderTodos();
+                showMessageBox(todo.completed ? 'Task marked as completed!' : 'Task marked as active!', 'info');
+            }
+        }
+
+        /**
+         * Deletes a to-do item from the list.
+         * @param {number} id - The ID of the to-do item to delete.
+         */
+        function deleteTodo(id) {
+            const itemToDelete = document.querySelector(`[data-todo-id="${id}"]`);
+            if (itemToDelete) {
+                itemToDelete.classList.remove('animate__fadeInLeft');
+                itemToDelete.classList.add('animate__fadeOutRight');
+                itemToDelete.addEventListener('animationend', () => {
+                    todos = todos.filter(t => t.id !== id);
+                    saveTodos();
+                    renderTodos();
+                    showMessageBox('Task deleted!', 'success');
+                }, { once: true });
+            }
+        }
+
+        /**
+         * Edits an existing to-do item.
+         * @param {number} id - The ID of the to-do item to edit.
+         */
+        function editTodo(id) {
+            const todoItem = document.querySelector(`[data-todo-id="${id}"] .todo-text`);
+            if (!todoItem) return;
+
+            const originalText = todoItem.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalText;
+            input.className = 'flex-grow p-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 transition-all duration-200';
+
+            todoItem.replaceWith(input);
+            input.focus();
+
+            const saveEdit = () => {
+                const newText = input.value.trim();
+                if (newText && newText !== originalText) {
+                    const todo = todos.find(t => t.id === id);
+                    if (todo) {
+                        todo.text = newText;
+                        saveTodos();
+                        renderTodos();
+                        showMessageBox('Task updated!', 'success');
+                    }
+                } else {
+                    // If empty or no change, revert to original text
+                    renderTodos();
+                    if (!newText) showMessageBox('Task cannot be empty!', 'error');
+                }
+            };
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveEdit();
+                }
+            });
+            input.addEventListener('blur', saveEdit); // Save on blur
+        }
+
+        /**
+         * Sets the current filter for the to-do list.
+         * @param {string} filter - 'all', 'active', or 'completed'.
+         */
+        function setFilter(filter) {
+            currentFilter = filter;
+            filterButtons.forEach(button => {
+                if (button.dataset.filter === filter) {
+                    button.classList.add('bg-blue-600', 'text-white');
+                    button.classList.remove('bg-gray-700', 'text-gray-300');
+                } else {
+                    button.classList.remove('bg-blue-600', 'text-white');
+                    button.classList.add('bg-gray-700', 'text-gray-300');
+                }
+            });
+            renderTodos();
+        }
+
+        /**
+         * Updates the counts for all, active, and completed tasks.
+         */
+        function updateTaskCounts() {
+            const allCount = todos.length;
+            const activeCount = todos.filter(t => !t.completed).length;
+            const completedCount = todos.filter(t => t.completed).length;
+
+            countAll.textContent = allCount;
+            countActive.textContent = activeCount;
+            countCompleted.textContent = completedCount;
+        }
+
+        /**
+         * Clears all completed to-do items.
+         */
+        function clearDoneTodos() {
+            const completedItems = todos.filter(t => t.completed);
+            if (completedItems.length === 0) {
+                showMessageBox('No completed tasks to clear!', 'info');
+                return;
+            }
+
+            // Animate removal of completed items
+            completedItems.forEach(todo => {
+                const itemElement = document.querySelector(`[data-todo-id="${todo.id}"]`);
+                if (itemElement) {
+                    itemElement.classList.remove('animate__fadeInLeft');
+                    itemElement.classList.add('animate__fadeOutDown');
+                    itemElement.addEventListener('animationend', () => {
+                        // This listener will fire for each item, so filter after all animations
+                        todos = todos.filter(t => !t.completed);
+                        saveTodos();
+                        renderTodos(); // Re-render once after all are removed
+                        showMessageBox('Completed tasks cleared!', 'success');
+                    }, { once: true });
+                }
+            });
+
+            // If no items were animated (e.g., all already removed), just filter and render
+            if (completedItems.length === 0) {
+                todos = todos.filter(t => !t.completed);
+                saveTodos();
+                renderTodos();
+                showMessageBox('Completed tasks cleared!', 'success');
+            }
+        }
+
+        /**
+         * Clears all to-do items from the list.
+         */
+        function clearAllTodos() {
+            if (todos.length === 0) {
+                showMessageBox('No tasks to clear!', 'info');
+                return;
+            }
+            // Animate removal of all items
+            const allTodoElements = document.querySelectorAll('#todo-list li');
+            if (allTodoElements.length > 0) {
+                allTodoElements.forEach(itemElement => {
+                    itemElement.classList.remove('animate__fadeInLeft');
+                    itemElement.classList.add('animate__fadeOutDown');
+                    itemElement.addEventListener('animationend', () => {
+                        todos = [];
+                        saveTodos();
+                        renderTodos();
+                        showMessageBox('All tasks cleared!', 'success');
+                    }, { once: true });
+                });
+            } else {
+                todos = [];
+                saveTodos();
+                renderTodos();
+                showMessageBox('All tasks cleared!', 'success');
+            }
+        }
+
+        /**
+         * Renders the to-do list based on the current filter.
+         */
+        function renderTodos() {
+            todoList.innerHTML = ''; // Clear current list
+
+            const filteredTodos = todos.filter(todo => {
+                if (currentFilter === 'active') return !todo.completed;
+                if (currentFilter === 'completed') return todo.completed;
+                return true; // 'all' filter
+            });
+
+            if (filteredTodos.length === 0 && todos.length > 0) {
+                // If no items match the filter but there are items in total, show a message
+                const noItemsMessage = document.createElement('li');
+                noItemsMessage.className = 'text-center text-gray-400 py-4 animate__animated animate__fadeIn';
+                noItemsMessage.textContent = `No ${currentFilter} tasks.`;
+                todoList.appendChild(noItemsMessage);
+            } else if (todos.length === 0) {
+                const noItemsMessage = document.createElement('li');
+                noItemsMessage.className = 'text-center text-gray-400 py-4 animate__animated animate__fadeIn';
+                noItemsMessage.textContent = 'Your to-do list is empty. Add some tasks!';
+                todoList.appendChild(noItemsMessage);
+            }
+
+            filteredTodos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item flex items-center justify-between p-3 rounded-lg bg-gray-700 shadow-md animate__animated animate__fadeInLeft ${todo.completed ? 'opacity-70 line-through text-gray-400' : ''}`;
+                li.dataset.todoId = todo.id; // Custom data attribute for ID
+
+                li.innerHTML = `
+                    <div class="flex items-center flex-grow">
+                        <input type="checkbox" class="mr-3" ${todo.completed ? 'checked' : ''}>
+                        <span class="todo-text flex-grow break-words">${todo.text}</span>
+                    </div>
+                    <div class="todo-item-controls flex space-x-2 ml-4">
+                        <button class="edit-todo-button text-blue-400 hover:text-blue-300 transition-colors duration-200" title="Edit Task">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-todo-button text-red-400 hover:text-red-300 transition-colors duration-200" title="Delete Task">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+
+                // Event listeners for dynamically created elements
+                li.querySelector('input[type="checkbox"]').addEventListener('change', () => toggleComplete(todo.id));
+                li.querySelector('.delete-todo-button').addEventListener('click', () => deleteTodo(todo.id));
+                li.querySelector('.edit-todo-button').addEventListener('click', () => editTodo(todo.id));
+
+                todoList.appendChild(li);
+            });
+            updateTaskCounts(); // Update counts after rendering
+        }
+
+        // --- Notes Functions ---
+
+        /**
+         * Adds a new note to the list.
+         */
+        function addNote() {
+            const noteText = noteInput.value.trim();
+            if (noteText) {
+                notes.push({
+                    id: Date.now(), // Unique ID for the note
+                    text: noteText
+                });
+                noteInput.value = ''; // Clear input
+                saveNotes();
+                renderNotes();
+                showMessageBox('Note added successfully!', 'success');
+            } else {
+                noteInput.classList.add('shake');
+                setTimeout(() => noteInput.classList.remove('shake'), 500);
+                showMessageBox('Note cannot be empty!', 'error');
+            }
+        }
+
+        /**
+         * Edits an existing note.
+         * @param {number} id - The ID of the note to edit.
+         */
+        function editNote(id) {
+            const noteItem = document.querySelector(`[data-note-id="${id}"] .note-text`);
+            if (!noteItem) return;
+
+            const originalText = noteItem.textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = originalText;
+            textarea.rows = 3; // Keep consistent rows
+            textarea.className = 'w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-purple-500 transition-all duration-200';
+
+            noteItem.replaceWith(textarea);
+            textarea.focus();
+
+            const saveEdit = () => {
+                const newText = textarea.value.trim();
+                if (newText && newText !== originalText) {
+                    const note = notes.find(n => n.id === id);
+                    if (note) {
+                        note.text = newText;
+                        saveNotes();
+                        renderNotes();
+                        showMessageBox('Note updated!', 'success');
+                    }
+                } else {
+                    // If empty or no change, revert to original text
+                    renderNotes();
+                    if (!newText) showMessageBox('Note cannot be empty!', 'error');
+                }
+            };
+
+            textarea.addEventListener('blur', saveEdit); // Save on blur
+            textarea.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Save on Enter, allow Shift+Enter for new line
+                    e.preventDefault(); // Prevent default new line
+                    saveEdit();
+                }
+            });
+        }
+
+        /**
+         * Deletes a note from the list.
+         * @param {number} id - The ID of the note to delete.
+         */
+        function deleteNote(id) {
+            const itemToDelete = document.querySelector(`[data-note-id="${id}"]`);
+            if (itemToDelete) {
+                itemToDelete.classList.remove('animate__fadeInLeft');
+                itemToDelete.classList.add('animate__fadeOutRight');
+                itemToDelete.addEventListener('animationend', () => {
+                    notes = notes.filter(n => n.id !== id);
+                    saveNotes();
+                    renderNotes();
+                    showMessageBox('Note deleted!', 'success');
+                }, { once: true });
+            }
+        }
+
+        /**
+         * Clears all notes from the list.
+         */
+        function clearAllNotes() {
+            if (notes.length === 0) {
+                showMessageBox('No notes to clear!', 'info');
+                return;
+            }
+            // Animate removal of all items
+            const allNoteElements = document.querySelectorAll('#notes-list div.note-item');
+            if (allNoteElements.length > 0) {
+                allNoteElements.forEach(itemElement => {
+                    itemElement.classList.remove('animate__fadeInLeft');
+                    itemElement.classList.add('animate__fadeOutDown');
+                    itemElement.addEventListener('animationend', () => {
+                        notes = [];
+                        saveNotes();
+                        renderNotes();
+                        showMessageBox('All notes cleared!', 'success');
+                    }, { once: true });
+                });
+            } else {
+                notes = [];
+                saveNotes();
+                renderNotes();
+                showMessageBox('All notes cleared!', 'success');
+            }
+        }
+
+        /**
+         * Renders the notes list.
+         */
+        function renderNotes() {
+            notesList.innerHTML = ''; // Clear current list
+
+            if (notes.length === 0) {
+                const noItemsMessage = document.createElement('div');
+                noItemsMessage.className = 'text-center text-gray-400 py-4 animate__animated animate__fadeIn';
+                noItemsMessage.textContent = 'You have no notes. Add some!';
+                notesList.appendChild(noItemsMessage);
+            }
+
+            notes.forEach(note => {
+                const div = document.createElement('div');
+                div.className = `note-item p-3 rounded-lg bg-gray-700 shadow-md animate__animated animate__fadeInLeft`;
+                div.dataset.noteId = note.id; // Custom data attribute for ID
+
+                div.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="note-text flex-grow break-words whitespace-pre-wrap">${note.text}</span>
+                        <div class="note-item-controls flex space-x-2 ml-4">
+                            <button class="edit-note-button text-purple-400 hover:text-purple-300 transition-colors duration-200" title="Edit Note">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-note-button text-red-400 hover:text-red-300 transition-colors duration-200" title="Delete Note">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Event listeners for dynamically created elements
+                div.querySelector('.delete-note-button').addEventListener('click', () => deleteNote(note.id));
+                div.querySelector('.edit-note-button').addEventListener('click', () => editNote(note.id));
+
+                notesList.appendChild(div);
+            });
+        }
+
+        // --- Event Listeners ---
+
+        // Toggle App Button
+        toggleAppButton.addEventListener('click', toggleAppContainer);
+
+        // To-Do List Event Listeners
+        addTodoButton.addEventListener('click', addTodo);
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => setFilter(button.dataset.filter));
+        });
+
+        clearDoneButton.addEventListener('click', clearDoneTodos);
+        clearAllTodosButton.addEventListener('click', clearAllTodos);
+
+        // Notes Event Listeners
+        addNoteButton.addEventListener('click', addNote);
+        noteInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { // Allow Shift+Enter for new line in textarea
+                e.preventDefault(); // Prevent default new line
+                addNote();
+            }
+        });
+        clearAllNotesButton.addEventListener('click', clearAllNotes);
+
+        // --- Initial Render on Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTodos();
+            renderNotes();
+            setFilter(currentFilter); // Set initial filter button state
+        });
+    </script>
+</body>
+</html>

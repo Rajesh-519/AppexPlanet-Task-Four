@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Time!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .option:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #f0fdf4 !important;
+            border-color: #16a34a !important;
+            color: #15803d !important;
+        }
+        .incorrect {
+            background-color: #fef2f2 !important;
+            border-color: #dc2626 !important;
+            color: #b91c1c !important;
+        }
+        .option {
+            background-color: #f0f2ff;
+            color: #4338ca;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .option:hover {
+            background-color: #e0e7ff;
+            transform: scale(1.04);
+        }
+        .option.selected {
+            background-color: #d8b4fe !important;
+            color: #5b21b6 !important;
+        }
+        #quiz-content {
+            perspective: 1000px;
+        }
+        #question-text {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease;
+            transform-style: preserve-3d;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Timer Styles */
+        #timer {
+            font-family: 'Arial', sans-serif;
+            font-size: 1.4rem;
+            color: #dc2626;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        #timer.warning {
+            color: #f59e0b;
+            transform: scale(1.1);
+        }
+        #timer.critical {
+            color: #b91c1c;
+            transform: scale(1.2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-purple-400 to-blue-500 flex justify-center items-center min-h-screen p-4">
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transition-transform hover:scale-105">
+        <h1 class="text-3xl font-semibold text-indigo-600 text-center mb-6">Quiz Time!</h1>
+        <div id="start-screen" class="text-center">
+            <p class="text-lg text-gray-700 mb-8">Welcome to our quiz! Test your knowledge and have fun.</p>
+            <button id="start-button" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Start Quiz</button>
+        </div>
+        <div id="quiz-setup" class="hidden">
+            <h2 class="text-2xl font-semibold text-indigo-600 text-center mb-6">Quiz Setup</h2>
+            <div class="mb-6">
+                <label for="category-select" class="block text-gray-700 text-sm font-bold mb-3">Category:</label>
+                <select id="category-select" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="any">All Categories</option>
+                    <option value="9">General Knowledge</option>
+                    <option value="17">Science & Nature</option>
+                    <option value="23">History</option>
+                    <option value="22">Geography</option>
+                    <option value="10">Books</option>
+                </select>
+            </div>
+            <div class="mb-6">
+                <label for="difficulty-select" class="block text-gray-700 text-sm font-bold mb-3">Difficulty:</label>
+                <select id="difficulty-select" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="mb-6">
+                <label for="questions-limit" class="block text-gray-700 text-sm font-bold mb-3">Number of Questions:</label>
+                <input type="number" id="questions-limit" min="1" max="50" value="10" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="flex justify-center space-x-4 mt-8">
+                <button id="start-quiz" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Start Quiz</button>
+                <button id="back-to-start" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Back</button>
+            </div>
+        </div>
+        <div id="quiz-rules" class="hidden">
+            <h2 class="text-2xl font-semibold text-indigo-600 mb-6 text-center">Quiz Rules</h2>
+            <ul class="list-disc list-inside space-y-3 text-gray-700 text-lg">
+                <li>You will have a limited time to answer each question.</li>
+                <li>Select your answer carefully; you cannot change it.</li>
+                <li>Your score will be displayed at the end of the quiz.</li>
+                <li>Try to answer all questions.  Unanswered questions will be scored as incorrect.</li>
+            </ul>
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="rules-next" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Next</button>
+                <button id="rules-back" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Back</button>
+            </div>
+        </div>
+        <div id="quiz-content" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <span id="question-number" class="text-xl text-gray-800 font-semibold">Question: 1</span>
+                <span id="timer" class="text-xl text-red-500 font-semibold">Time Left: 15s</span>
+            </div>
+            <h2 id="question-text" class="text-2xl font-semibold text-gray-800 mb-6">Question will appear here</h2>
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <button class="option bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold rounded-md shadow-md py-3 px-4 transition duration-300 ease-in-out text-lg text-left">Option 1</button>
+                <button class="option bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold rounded-md shadow-md py-3 px-4 transition duration-300 ease-in-out text-lg text-left">Option 2</button>
+                <button class="option bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold rounded-md shadow-md py-3 px-4 transition duration-300 ease-in-out text-lg text-left">Option 3</button>
+                <button class="option bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold rounded-md shadow-md py-3 px-4 transition duration-300 ease-in-out text-lg text-left">Option 4</button>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="next-question" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg" disabled>Next Question</button>
+            </div>
+        </div>
+        <div id="results-screen" class="hidden text-center">
+            <h2 class="text-3xl font-semibold text-indigo-600 mb-6">Results</h2>
+            <p id="final-score" class="text-2xl text-gray-800 mb-8">Your Score: 0</p>
+            <p id="accuracy" class="text-xl text-gray-700 mb-8">Accuracy: 0%</p>
+            <button id="restart-quiz" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Play Again</button>
+        </div>
+        <div id="error-screen" class="hidden text-center">
+            <h2 class="text-3xl font-semibold text-red-600 mb-6">Error</h2>
+            <p id="error-message" class="text-lg text-gray-700 mb-8">An error occurred.</p>
+            <button id="try-again" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-md shadow-md transition duration-300 ease-in-out text-lg">Try Again</button>
+        </div>
+    </div>
+    <script>
+        // ---  DOM Elements  ---
+        const startScreen = document.getElementById('start-screen');
+        const startButton = document.getElementById('start-button');
+        const quizSetup = document.getElementById('quiz-setup');
+        const quizRules = document.getElementById('quiz-rules');
+        const rulesNextButton = document.getElementById('rules-next');
+        const rulesBackButton = document.getElementById('rules-back');
+        const quizContent = document.getElementById('quiz-content');
+        const questionNumberDisplay = document.getElementById('question-number');
+        const questionTextDisplay = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextQuestionButton = document.getElementById('next-question');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartQuizButton = document.getElementById('restart-quiz');
+        const categorySelect = document.getElementById('category-select');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const questionsLimitInput = document.getElementById('questions-limit');
+        const startQuizButton = document.getElementById('start-quiz');
+        const backToStartButton = document.getElementById('back-to-start');
+        const timerDisplayElement = document.getElementById('timer');
+        const errorScreen = document.getElementById('error-screen');
+        const errorMessageDisplay = document.getElementById('error-message');
+        const tryAgainButton = document.getElementById('try-again');
+        const accuracyDisplay = document.getElementById('accuracy');
+        // ---  Game State  ---
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let timeLeft = 15;
+        let timerId;
+        let selectedCategory = 'any';
+        let selectedDifficulty = 'easy';
+        let questionLimit = 10;
+        let quizStarted = false;
+        let correctAnswersCount = 0;
+        // ---  Event Listeners  ---
+        // Start Quiz Button: Hide start screen, show quiz setup
+        startButton.addEventListener('click', () => {
+            startScreen.classList.add('hidden');
+            quizRules.classList.remove('hidden');
+        });
+        // Quiz Rules Next Button: Hide quiz rules, show quiz setup
+        rulesNextButton.addEventListener('click', () => {
+            quizRules.classList.add('hidden');
+            quizSetup.classList.remove('hidden');
+        });
+        rulesBackButton.addEventListener('click', () => {
+            quizRules.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+        // Back to Start Button: Hide quiz setup, show start screen
+        backToStartButton.addEventListener('click', () => {
+            quizSetup.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+        // Start Quiz Button: Fetch questions, start quiz
+        startQuizButton.addEventListener('click', () => {
+            selectedCategory = categorySelect.value;
+            selectedDifficulty = difficultySelect.value;
+            questionLimit = parseInt(questionsLimitInput.value);
+            if (!questionLimit || questionLimit <= 0) {
+                alert("Please enter a valid number of questions.");
+                return;
+            }
+            quizSetup.classList.add('hidden');
+            quizContent.classList.remove('hidden');
+            fetchQuestions(selectedCategory, selectedDifficulty, questionLimit);
+        });
+        // Next Question Button:  Show next question or results
+        nextQuestionButton.addEventListener('click', () => {
+            if (quizStarted) {
+                if (currentQuestionIndex < quizData.length - 1) {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                } else {
+                    clearInterval(timerId);
+                    showResults();
+                }
+            }
+        });
+        // Restart Quiz Button: Reset game state, show start screen
+        restartQuizButton.addEventListener('click', () => {
+            quizData = [];
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            timeLeft = 60;
+            clearInterval(timerId);
+            resultsScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            quizStarted = false;
+            correctAnswersCount = 0;
+        });
+        tryAgainButton.addEventListener('click', () => {
+            errorScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            quizStarted = false;
+        });
+        // ---  Functions  ---
+        // Fetch questions from API
+        async function fetchQuestions(category = 'any', difficulty = 'easy', limit = 10) {
+            let apiUrl = `https://opentdb.com/api.php?amount=${limit}&difficulty=${difficulty}&type=multiple`;
+            if (category !== 'any') {
+                apiUrl += `&category=${category}`;
+            }
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                quizData = data.results;
+                // Transform the data to a more usable format
+                quizData = quizData.map(question => {
+                    const correctAnswer = question.correct_answer;
+                    const incorrectAnswers = question.incorrect_answers;
+                    const allOptions = [correctAnswer, ...incorrectAnswers];
+                    // Shuffle the options
+                    const shuffledOptions = shuffleArray(allOptions);
+                    return {
+                        question: question.question,
+                        correctAnswer: correctAnswer,
+                        options: shuffledOptions, // Use the shuffled options
+                    };
+                });
+                currentQuestionIndex = 0;
+                loadQuestion();
+                quizStarted = true;
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+                errorMessageDisplay.textContent = "Failed to fetch questions. Please check your internet connection and try again.";
+                quizContent.classList.add('hidden');
+                errorScreen.classList.remove('hidden');
+                quizStarted = false;
+            }
+        }
+        // Load a question and its options
+        function loadQuestion() {
+            if (!quizData || quizData.length === 0) {
+                console.error("No quiz data available.");
+                return;
+            }
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionNumberDisplay.textContent = `Question: ${currentQuestionIndex + 1} / ${quizData.length}`;
+            questionTextDisplay.textContent = currentQuestion.question;
+            questionTextDisplay.classList.add('fade-in'); // Add fade-in class
+            optionsContainer.innerHTML = ''; // Clear previous options
+            const correctAnswer = currentQuestion.correctAnswer;
+            const allOptions = currentQuestion.options; // Get options from the question object
+            allOptions.forEach(option => {
+                const optionButton = document.createElement('button');
+                optionButton.textContent = option;
+                optionButton.className = `option bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold rounded-md shadow-md py-3 px-4 transition duration-300 ease-in-out text-lg text-left`;
+                optionButton.addEventListener('click', () => handleOptionSelect(option));
+                optionsContainer.appendChild(optionButton);
+            });
+            timeLeft = 15;
+            clearInterval(timerId);
+            startTimer();
+            nextQuestionButton.disabled = true;
+            nextQuestionButton.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            nextQuestionButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            // Remove fade-in class after the animation
+            setTimeout(() => {
+                questionTextDisplay.classList.remove('fade-in');
+            }, 1000);
+        }
+        function shuffleArray(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+        // Handle option selection
+        function handleOptionSelect(selectedOption) {
+            if (!quizStarted) return;
+            const currentQuestion = quizData[currentQuestionIndex];
+            const correctOption = currentQuestion.correctAnswer;
+            userAnswers[currentQuestionIndex] = selectedOption;
+            const selectedButtons = optionsContainer.querySelectorAll('.option');
+            selectedButtons.forEach(button => {
+                button.disabled = true; // Disable all options
+                if (button.textContent === correctOption) {
+                    button.classList.add('correct');
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('incorrect'); // Apply incorrect class
+                } else {
+                    button.classList.add('bg-gray-100', 'text-gray-500');
+                }
+            });
+            clearInterval(timerId);
+            if (selectedOption === correctOption) {
+                score++;
+                correctAnswersCount++;
+            }
+            nextQuestionButton.disabled = false;
+            nextQuestionButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            nextQuestionButton.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }
+        // Timer function
+        function startTimer() {
+            timeLeft = 15;
+            timerDisplayElement.textContent = `Time Left: ${timeLeft}s`;
+            timerId = setInterval(() => {
+                timeLeft--;
+                timerDisplayElement.textContent = `Time Left: ${timeLeft}s`;
+                if (timeLeft <= 10) {
+                    timerDisplayElement.classList.add('warning');
+                }
+                if (timeLeft <= 5) {
+                    timerDisplayElement.classList.remove('warning');
+                    timerDisplayElement.classList.add('critical');
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+        function handleTimeout() {
+            if (!quizStarted) return;
+            const correctOption = quizData[currentQuestionIndex].correctAnswer;
+            const selectedButtons = optionsContainer.querySelectorAll('.option');
+            selectedButtons.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === correctOption) {
+                    button.classList.add('correct');
+                } else {
+                    button.classList.add('bg-gray-100', 'text-gray-500'); //grey out
+                }
+            });
+            userAnswers[currentQuestionIndex] = null; //mark as unanswered
+            nextQuestionButton.disabled = false;
+            nextQuestionButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            nextQuestionButton.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }
+        // Show results
+        function showResults() {
+            quizContent.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            finalScoreDisplay.textContent = `Your Score: ${score} / ${quizData.length}`;
+            let accuracy = quizData.length > 0 ? (correctAnswersCount / quizData.length) * 100 : 0;
+            accuracyDisplay.textContent = `Accuracy: ${accuracy.toFixed(2)}%`;
+            clearInterval(timerId);
+            quizStarted = false;
+        }
+    </script>
+</body>
+</html>
